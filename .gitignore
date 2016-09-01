@@ -1,0 +1,17 @@
+logs/*
+!.gitkeep
+node_modules/
+bower_components/
+tmp
+.DS_Store
+.idea
+public/build/
+npm-debug.log*
+config/*.local.*
+public/*
+!public/*.html
+!public/*.ico
+!public/img
+!public/fonts
+.idea
+!public/*.ico
