@@ -86,5 +86,8 @@
     "config:build": "gulp config:build",
     "config:watch": "onchange config/\\*.json -- npm-run-all -s patterns:build config:dev js:dev",
     "patterns:build": "ln-patterns"
+  },
+  "dependencies": {
+    "material-design-lite": "^1.2.0"
   }
 }
