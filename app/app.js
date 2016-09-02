@@ -1,14 +1,16 @@
 // import angular from 'angular';
 
+
+require('./nyu.chat');
+
+ 
 angular
   .module( 'app', [
     'ngConstants',
     'ngSanitize',
     'ngAnimate',
     // 'templateCache',
-    'lnCms',
-    'lnFilters',
-    'lnPatterns',
+    'nyuChat',
   ])
   .animation( '.view-content', appAnimation )
   .config( appConfig )
@@ -56,40 +58,17 @@ function appAnimation( $rootScope, $state ) {
 // CONFIG
 //
 
-appConfig.$inject = ['$locationProvider', 'lnCmsConfigProvider', 'lnApi'];
+appConfig.$inject = ['$locationProvider'];
 
-function appConfig( $locationProvider, lnCmsConfigProvider, lnApi ) {
+function appConfig( $locationProvider ) {
   $locationProvider.html5Mode( true );
-
-  lnCmsConfigProvider.setConfig(
-    { endpoints: getEndpoints( lnApi.base, lnApi.endpoints ) }
-  );
 }
 
 //
 // RUN
 //
 
-appRun.$inject = ['lnMAdminBarService', 'lnApi'];
-
-function appRun( lnMAdminBarService, lnApi ) {
-  lnMAdminBarService.setApiUrl(
-    getEndpoints( lnApi.base, lnApi.endpoints ).adminBar
-  );
-}
-
-function getEndpoints( apiBase, apiEndpoints ) {
-  var resolvedEndpoints = apiEndpoints;
-
-  function resolveEndpoint( endpoint, name ) {
-    resolvedEndpoints[name] = endpoint.replace( '{API_BASE}', apiBase );
-  }
-
-  if ( angular.isDefined( apiBase ) && '' !== apiBase ) {
-    angular.forEach( apiEndpoints, resolveEndpoint );
-  }
-
-  return resolvedEndpoints;
+function appRun() {
 }
 
 //
@@ -97,9 +76,6 @@ function getEndpoints( apiBase, apiEndpoints ) {
 //
 
 require( '../public/js/ngConstants.js' );
-require( 'ln-cms' );
-require( 'ln-filters' );
-require( 'ln-patternlab' );
 // require( './custom/templates' );
 // require( 'organisms/loader/loader.directive' );
 require( '../node_modules/material-design-lite/material.js' );
