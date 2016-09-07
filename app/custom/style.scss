@@ -97,12 +97,112 @@
   }
 }
 
-
+.my_profile {
+  .presentation {
+    background-color: rgba(123,31,162,0.95);
+    text-align: center;
+    color: white;
+    padding: 22px 10px;
+    
+    .background_picture {
+      $blur: 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: -1;
+      -webkit-filter: blur($blur);
+      -moz-filter: blur($blur);
+      -o-filter: blur($blur);
+      -ms-filter: blur($blur);
+      filter: blur($blur);
+    }
+    
+    .title {
+      font-size: 12px;
+      font-weight: 600;
+      position: relative;
+      
+      .mdl-button {
+        position: absolute;
+        right: 0px;
+        top: -2px;
+        height: 22px;
+        
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .profile_picture {
+      position: relative;
+      
+      img {
+        width: 96px;
+        display: block;
+        margin: 20px auto;
+        border-radius: 50%;
+      }
+      
+      .edit {
+        position: absolute;
+        top: calc(50% - 7px);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        
+        a {
+          text-decoration: none;
+          color: white;
+        }
+      }
+      
+      form {
+        display: none;
+      }
+    }
+    
+    div.name {
+      font-weight: 600;
+    }
+    
+    input.name {
+      padding: 5px;
+      width: calc(100% - 10px);
+      text-align: center;
+    }
+    
+    .email {
+      font-size: 13px;
+      margin-top: 3px;
+    }
+  }
+}
 
 .chat {
 
   $header-height: 64px;
   $new-height: 64px;
+  
+  .mdl-layout__drawer {
+    border-right: 0px solid #e0e0e0;
+    
+     .mdl-navigation__link {
+       color: #757575;
+       
+       i {
+         margin-right: 14px;
+         color: #7B1FA2;
+         font-size: 19px;
+       }
+     }
+    
+    .mdl-navigation__link.sign_out {
+      border-top: 1px solid #DBDBDB;
+    }
+  }
   
   main > .mdl-grid {
     padding: 0px;
@@ -165,6 +265,17 @@
     letter-spacing: .02em;
     font-weight: 400;
     box-sizing: border-box;
+  }
+  
+  .head.with_menu {
+    padding-left: 72px;
+  }
+  
+  .mdl-layout__drawer-button {
+    i.material-icons {
+      position: relative;
+      top: -5px;
+    }
   }
   
   .users {
