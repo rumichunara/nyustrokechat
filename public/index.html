@@ -9,6 +9,7 @@
     <base href="/">
     
     <!-- font inclusion -->
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700' type='text/css'>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     <!-- Disable tap highlight on IE -->
@@ -42,9 +43,9 @@
     <![endif]-->
 
     <!-- Authentication -->
-    <div class="{{ (user == null) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <div class="{{ (Firebase.user_id == null) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
       <main class="mdl-layout__content">
-        <div ng-show="user == null" class="form">
+        <div ng-show="Firebase.user_id == null" class="form">
           <img class="logo" src="/img/logo_authentication.png">
           <form action="#">
             <div class="mdl-textfield mdl-js-textfield" ng-show="authentication_state == 'registering'">
@@ -103,11 +104,11 @@
     </div>
     
     
-    <!-- Main chat -->
-    <div ng-show="user != null" class="chat mdl-layout mdl-js-layout">
+    <!-- Profile -->
+    <div ng-show="Firebase.user_id != null" class="chat mdl-layout mdl-js-layout">
       <div class="mdl-layout__drawer {{ (my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (my_profile_visible) ? 'true' : 'false' }}">
         <div class="presentation">
-          <img class="background_picture" ng-src="{{ ((user != null && user.profile_picture == '') ? '/img/avatar.png' : user.profile_picture) }}" />
+          <img class="background_picture" ng-src="{{ get_profile_picture(Firebase.users[Firebase.user_id]) }}" />
           
           <div class="title">
             MY PROFILE
@@ -117,7 +118,7 @@
           </div>
           
           <div class="profile_picture">
-            <img class="profile_picture" ng-src="{{ ((user != null && user.profile_picture == '') ? '/img/avatar.png' : user.profile_picture) }}" />
+            <img class="profile_picture" ng-src="{{ get_profile_picture(Firebase.users[Firebase.user_id]) }}" />
             <div ng-show="editing_profile" class="edit"><a href="" ng-click="select_profile_picture()">edit</a></div>
             
             <form action="">
@@ -126,9 +127,9 @@
             
           </div>
          
-          <div ng-show="!editing_profile" class="name">{{ (user.name != '') ? user.name : '[edit your name]' }}</div>
-          <input ng-show="editing_profile" type="text" class="mdl-textfield__input name" ng-model="user.name" placeholder="Type here..." ng-keypress="edit_profile_confirm($event)">
-          <div class="email">{{ user.email }}</div>
+          <div ng-show="!editing_profile" class="name">{{ (Firebase.users[Firebase.user_id].name != '') ? Firebase.users[Firebase.user_id].name : '[edit your name]' }}</div>
+          <input ng-show="editing_profile" type="text" class="mdl-textfield__input name" ng-model="Firebase.users[Firebase.user_id].name" placeholder="Type here..." ng-keypress="edit_profile_confirm($event)">
+          <div class="email">{{ Firebase.users[Firebase.user_id].email }}</div>
         </div>
         <nav class="mdl-navigation">
           <a class="mdl-navigation__link" href=""><i class="material-icons">question_answer</i> Support</a>
@@ -137,29 +138,56 @@
           <a class="mdl-navigation__link sign_out" href="" ng-click="sign_out()"><i class="material-icons">power_settings_new</i> Sign out</a>
         </nav>
       </div>
+      
+      
+      <!-- Main chat -->
       <main class="mdl-layout__content">
         <div class="mdl-grid">
           <div class="messages mdl-cell mdl-cell--10-col-desktop mdl-cell--12-col-tablet">
             <div class="head with_menu">
-              Group Name
+              {{ Firebase.groups[Firebase.users[Firebase.user_id].group_id].name }}
+              
+              <button id="menu-lower-right"
+                      class="mdl-button mdl-js-button mdl-button--icon">
+                <i class="material-icons">more_vert</i>
+              </button>
+
+              <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-lower-right">
+                <li class="mdl-menu__item" ng-click="download_log()">Download log</li>
+              </ul>
             </div>
             <div class="list" id="messages_list">
-              <div class="message" ng-repeat="m in messages">
-                {{ m.text }}
+              <div ng-repeat="m in messages" class="message b-{{ $index % 4 }}">
+                <img class="profilepicture" ng-src="{{ get_profile_picture(Firebase.users[m.user_id]) }}" />
+                <div class="name c-{{ Firebase.users[m.user_id].color }}">
+                  <a href="" ng-click="show_profile(m.user_id)">{{ Firebase.users[m.user_id].name }}</a>
+                </div>
+                <div class="when">
+                  {{ m.when | showTime }}
+                </div>
+                <div class="text">
+                  {{ m.text }}
+                </div>
               </div>
             </div>
             <div class="new">
-              <textarea placeholder="Type here..." ng-model="message" ng-disabled="sending_message" ng-keypress="message_keypressed($event)"></textarea>
-              <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="send_message()" ng-disabled="sending_message">
+              <textarea placeholder="Type here..." ng-model="new_message" ng-keypress="message_keypressed($event)"></textarea>
+              <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="send_message(new_message)" ng-disabled="sending_message">
                 <i class="material-icons">send</i>
               </button>
             </div>
           </div>
-          <div class="users mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-tablet">
+          <div class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-tablet">
             <div class="head">
               Group Users
             </div>
             <div class="list">
+              <div ng-repeat="user_id in Firebase.groups[Firebase.users[Firebase.user_id].group_id].members" class="member b-{{ $index % 4 }}">
+                <img class="profilepicture" ng-src="{{ get_profile_picture(Firebase.users[user_id]) }}" />
+                <div class="name c-{{ Firebase.users[user_id].color }}">
+                  <a href="" ng-click="show_profile(user_id)">{{ Firebase.users[user_id].name }}</a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

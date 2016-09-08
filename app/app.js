@@ -1,5 +1,8 @@
 // import angular from 'angular';
 
+global.jQuery = require('../node_modules/jquery/dist/jquery.min');
+
+require('./angular-nicescroll');
 
 require('./nyu.chat');
 
@@ -9,7 +12,7 @@ angular
     'ngConstants',
     'ngSanitize',
     'ngAnimate',
-    // 'templateCache',
+    'ngNiceScroll',
     'nyuChat',
   ])
   .animation( '.view-content', appAnimation )
@@ -79,3 +82,4 @@ require( '../public/js/ngConstants.js' );
 // require( './custom/templates' );
 // require( 'organisms/loader/loader.directive' );
 require( '../node_modules/material-design-lite/material.js' );
+
