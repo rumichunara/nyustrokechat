@@ -247,10 +247,9 @@ html {
   }
 }
 
+$header-height: 64px;
 
 .chat {
-
-  $header-height: 64px;
   $new-height: 64px;
   
   .mdl-layout__drawer {
@@ -274,26 +273,6 @@ html {
   main > .mdl-grid {
     padding: 0px;
     height: 100vh;
-    
-    .mdl-cell {
-      margin: 0px;
-    }
-    
-    @media (min-width: 840px) {
-      .mdl-cell.mdl-cell--10-col-desktop {
-        width: 83.3333333333%;
-      }
-      
-      .mdl-cell.mdl-cell--2-col-desktop {
-        width: 16.6666666667%;
-      }
-    }
-    
-    @media (max-width: 839px) {
-      .mdl-cell--12-col-tablet {
-        width: 100%;
-      }
-    }
   }
   
   .head {
@@ -332,16 +311,16 @@ html {
     letter-spacing: .02em;
     font-weight: 400;
     box-sizing: border-box;
+    position: relative;
     
     &.with_menu {
       padding-left: 72px;
-      position: relative;
-      
-      #menu-lower-right {
-        position: absolute;
-        right: 20px;
-        top: 16px;
-      }
+    }
+    
+    #menu-lower-right {
+      position: absolute;
+      right: 20px;
+      top: 16px;
     }
   }
   
@@ -484,6 +463,64 @@ html {
     }    
   }
 }
+
+
+// Admin
+.admin {
+  $tabs-height: 49px;
+  
+  .mdl-tabs__tab-bar {
+    background: #7B1FA2;
+  }
+  
+  .mdl-tabs__tab, .mdl-tabs.is-upgraded .mdl-tabs__tab.is-active {
+    color: white;
+  }
+  
+  .mdl-tabs.is-upgraded .mdl-tabs__tab.is-active:after {
+    background: white;
+  }
+  
+  .users {
+    .list {
+      border-right: 1px solid #E0E0E0;
+      height: calc(100vh - #{$header-height} - #{$tabs-height});
+      overflow-y: auto;
+      background-color: white;
+      
+      .user {
+        padding: 16px 0px 16px 24px;
+        min-height: 40px;
+        border-bottom: 1px solid #F5F5F5;
+        
+        .profilepicture {
+          float: left;
+          margin-right: 24px;
+          display: inline;
+          width: 40px;
+          border-radius: 50%;
+        }
+        
+        div {
+          display: inline;
+        }
+        
+        .name {
+          letter-spacing: 0.3px;
+          font-weight: 500;
+          margin-right: 5px;
+          line-height: 40px;
+          
+          a {
+            text-decoration: none;
+            color: inherit;
+          }
+        }
+      }
+    }
+  }
+}
+
 
 // Colors
 .c-red {

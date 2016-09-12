@@ -248,12 +248,18 @@ function FirebaseService() {
         instance.user_id = user.uid;
         
         if (instance.user_id != null) {
+          firebase.database().ref('/users/' + instance.user_id).update({ last_active: new Date().getTime() });          
+
           // Lets get the rest of the info of the user, then well load the messages (because we need to know the group he belongs to)
           instance.getUserData(instance.user_id, function () {
             // We already have this field but not in the users list, we have to wait until the entry exists
             instance.users[instance.user_id].email = user.email;
             // Let's get the user's group data
             instance.getGroupData(instance.users[instance.user_id].group_id, instance.loadMessages);
+            
+            // If its an admin
+            if (instance.users[instance.user_id].admin)
+              instance.getAllUsers();
           });
           
           instance._onEveryFirebaseRequest();
@@ -316,7 +322,8 @@ function FirebaseService() {
       instance.users[user_id].color = instance.colors[instance.last_color_used];
       
       // Let's request all the data
-      firebase.database().ref('/users/' + user_id).on('value', function(s) {
+      var r = firebase.database().ref('/users/' + user_id);
+      r.on('value', function(s) {
         var v = s.val();
         
         // Precaution: user_id may not be set by default, so, if it is not set then we will
@@ -327,13 +334,11 @@ function FirebaseService() {
         instance.users[user_id].name = (v.name != undefined) ? v.name : '';
         instance.users[user_id].email = (v.email != undefined) ? v.email : '';
         instance.users[user_id].group_id = (v.group_id != undefined) ? v.group_id : '';
+        instance.users[user_id].admin = (v.admin != undefined) ? v.admin : false;
         
         instance.users[user_id].joined = (v.joined != undefined) ? v.joined : '';
         if (instance.users[user_id].joined == '')
           firebase.database().ref('/users/' + user_id).update({ joined: new Date().getTime() });
-        
-        instance.users[user_id].last_active = new Date().getTime();
-        firebase.database().ref('/users/' + user_id).update({ last_active: instance.users[user_id].last_active });
         
         if (typeof on_get == 'function')
           on_get();
@@ -342,6 +347,8 @@ function FirebaseService() {
         instance.getUrlOfImage(((v.profile_picture != undefined) ? v.profile_picture : ''), function(r) { 
           instance.users[user_id].profile_picture = r;
         });
+        
+        r.off(); // I dont want to excecute this every time user data changes
         
         instance._onEveryFirebaseRequest();
       });
@@ -424,7 +431,8 @@ function FirebaseService() {
       instance.groups[group_id] = {};
             
       // Let's request all the data
-      firebase.database().ref('/groups/' + group_id).on('value', function(s) {
+      var r = firebase.database().ref('/groups/' + group_id);
+      r.on('value', function(s) {
         var v = s.val();
         // From its data let's get what interests us
         instance.groups[group_id].group_id = (v != null  && v.group_id != undefined) ? v.group_id : '';
@@ -438,9 +446,22 @@ function FirebaseService() {
         if (typeof on_get == 'function')
           on_get();
         
+        r.off();
+        
         instance._onEveryFirebaseRequest();
       });
     },
+    
+    
+    // Admin stuff
+    getAllUsers: function () {
+      var r = firebase.database().ref('/users/');
+      r.on('child_added', function (s) {
+        instance.getUserData(s.val().user_id);
+        r.off();
+        instance._onEveryFirebaseRequest();
+      });
+    }
   };
   return instance;
 }
