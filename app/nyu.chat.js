@@ -46,25 +46,25 @@ function mainController($rootScope, $window, $scope, Firebase, $timeout) {
   });
   
   // Authentication stuff
-  $scope.authentication_reset = function () {
+  $scope.authenticationReset = function () {
     $scope.authentication_full_name = $scope.authentication_email = $scope.authentication_password = $scope.authentication_confirm_password = '';
   }
-  $scope.authentication_reset();
-  $scope.authentication_error_reset = function () {
+  $scope.authenticationReset();
+  $scope.authenticationErrorReset = function () {
     $scope.authentication_error_email = $scope.authentication_error_password = $scope.authentication_error_confirm_password = '';
   }
-  $scope.authentication_error_reset();
+  $scope.authenticationErrorReset();
   
-  $scope.authentication_state_change = function (s) {
-    $scope.authentication_reset();
-    $scope.authentication_error_reset();
+  $scope.authenticationStateChange = function (s) {
+    $scope.authenticationReset();
+    $scope.authenticationErrorReset();
     $scope.authentication_state = s;
   }
   
-  $scope.authentication_confirm = function () {
+  $scope.authenticationConfirm = function () {
     $scope.authentication_in_progress = true;
     if ($scope.authentication_state == 'registering') {
-      $scope.authentication_error_reset();
+      $scope.authenticationErrorReset();
       if ($scope.authentication_password != $scope.authentication_confirm_password) {
         $scope.authentication_error_confirm_password = 'The password and its confirmation do not match.';
         $scope.authentication_in_progress = false;
@@ -90,7 +90,7 @@ function mainController($rootScope, $window, $scope, Firebase, $timeout) {
     }
   }
   
-  $scope.authentication_reset_password = function () {
+  $scope.authenticationResetPassword = function () {
     Firebase.sendPasswordResetEmail($scope.authentication_email, function () {
       $scope.authentication_error_email = 'An email has been sent to this address with further instructions';
       $scope.authentication_in_progress = false;
@@ -100,46 +100,61 @@ function mainController($rootScope, $window, $scope, Firebase, $timeout) {
     });
   }
   
-  $scope.sign_out = Firebase.signOut;
+  $scope.signOut = Firebase.signOut;
 
 
   
   //Profile stuff
-  $scope.show_my_profile = function (b) {
+  $scope.showMyProfile = function (b) {
     $scope.my_profile_visible = b;
   };
   
-  $scope.toggle_edit_profile = function () {
+  $scope.toggleEditProfile = function () {
     $scope.editing_profile = !$scope.editing_profile;
   }
   
-  $scope.edit_profile_confirm = function (e) {
+  $scope.editProfileConfirm = function (e) {
     if (e.code == 'Enter') {
       $scope.editing_profile = false;
       Firebase.editUserProfileName(Firebase.users[Firebase.user_id].name);
     }
   }
   
-  $scope.select_profile_picture = function () {
+  $scope.selectProfilePicture = function () {
     document.getElementById('profile_picture_file').click();
   }
   
-  $scope.upload_profile_picture = function (e) {
+  $scope.uploadProfilePicture = function (e) {
     var file = e.target.files[0];
     if (!file.type.match('image.*'))
       return;
     Firebase.saveProfilePicture(file);
   }
   
-  $scope.get_profile_picture = function (u) {
+  $scope.getProfilePicture = function (u) {
      return (u == null || u.profile_picture == undefined || u.profile_picture == '') ? '/img/avatar.png' : u.profile_picture;
   }
-
+  
+  $scope.showProfile = function (user_id) {
+      
+      Firebase.getUserData(user_id, function () {
+        var t = '';
+        t += '<div class="profile">';
+        t += '  <img src="' + $scope.getProfilePicture(Firebase.users[user_id]) + '" />';
+        t += '  <div class="name">' + Firebase.users[user_id].name + '</div>';
+        t += '  <div class="email">' + Firebase.users[user_id].email + '</div>';
+        t += '  <div class="joined">Joined <span>' + date('F j, Y', new Date(Firebase.users[user_id].joined)) + '</span></div>';
+        t += '  <div class="last">Last time active <span>' + date('F j, Y', new Date(Firebase.users[user_id].last_active)) + '</span></div>';
+        t += '</div>';
+        swal({title: '', text: t, html: true});
+      });
+      
+  },
   
   
   // Chat stuff
   
-  $scope.send_message = function (m) {
+  $scope.sendMessage = function (m) {
     $scope.new_message = ''; // For not losing focus when pressing enter
     $scope.sending_message = true;
     Firebase.sendMessage(m, function () {
@@ -148,16 +163,16 @@ function mainController($rootScope, $window, $scope, Firebase, $timeout) {
     });
   }
   
-  $scope.message_keypressed = function (e) {
+  $scope.messageKeypressed = function (e) {
     if (e.code == 'Enter') {
       var m = $scope.new_message; // For not losing focus when pressing enter
       $scope.new_message = ''; // For not losing focus when pressing enter
-      $scope.send_message(m);
+      $scope.sendMessage(m);
       e.preventDefault(); // For not losing focus when pressing enter
     }
   }
   
-  $scope.download_log = function () {
+  $scope.downloadLog = function () {
     var cl = '';
     angular.forEach($scope.messages, function (d, i) {
       var t = new Date(d.when);
@@ -285,7 +300,11 @@ function FirebaseService() {
       
       // If we already have the user data then we dont search for it
       if (instance.users[user_id] != undefined)
+      {
+        if (typeof on_get == 'function')
+          on_get();
         return;
+      }
       
       // If that is not the case we'll search for it
       instance.users[user_id] = {};
@@ -306,6 +325,7 @@ function FirebaseService() {
           firebase.database().ref('/users/' + user_id).update({ user_id: user_id })
         
         instance.users[user_id].name = (v.name != undefined) ? v.name : '';
+        instance.users[user_id].email = (v.email != undefined) ? v.email : '';
         instance.users[user_id].group_id = (v.group_id != undefined) ? v.group_id : '';
         
         instance.users[user_id].joined = (v.joined != undefined) ? v.joined : '';
@@ -354,7 +374,7 @@ function FirebaseService() {
       }
     },
     
-    
+
     // Message stuff
     loadMessages: function () {
       if (instance.users[instance.user_id].group_id != '')

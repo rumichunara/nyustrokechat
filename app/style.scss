@@ -2,5 +2,8 @@
 @import '../node_modules/material-design-lite/material';
 @import '../node_modules/material-design-lite/dist/material.deep_purple-blue.min';
 
+@import './sweetalert';
+@import './sweetalert-override.min';
+
 /* styles */
 @import 'custom/style';

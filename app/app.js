@@ -2,7 +2,7 @@
 
 global.jQuery = require('../node_modules/jquery/dist/jquery.min');
 
-require('./angular-nicescroll');
+require('./sweetalert.min');
 
 require('./nyu.chat');
 
@@ -12,7 +12,6 @@ angular
     'ngConstants',
     'ngSanitize',
     'ngAnimate',
-    'ngNiceScroll',
     'nyuChat',
   ])
   .animation( '.view-content', appAnimation )

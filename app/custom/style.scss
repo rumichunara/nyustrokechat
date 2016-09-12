@@ -214,6 +214,40 @@ html {
   }
 }
 
+
+.profile {
+  img {
+    width: 96px;
+    display: block;
+    margin: 20px auto;
+    border-radius: 50%;
+  }
+  
+  .name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  
+  .email {
+    
+  }
+  
+  .joined {
+    font-weight: 600;
+    span {
+      font-weight: 300;
+    }
+  }
+  
+  .last {
+    font-weight: 600;
+    span {
+      font-weight: 300;
+    }
+  }
+}
+
+
 .chat {
 
   $header-height: 64px;
