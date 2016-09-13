@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="app" ng-controller="MainController as m">
+<html lang="en" ng-app="app">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -41,196 +41,8 @@
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
         your browser</a> to improve your experience.</p>
     <![endif]-->
-
-    <!-- Authentication -->
-    <div class="{{ (Firebase.user_id == null) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
-      <main class="mdl-layout__content">
-        <div ng-show="Firebase.user_id == null" class="form">
-          <img class="logo" src="/img/logo_authentication.png">
-          <form action="#">
-            <div class="mdl-textfield mdl-js-textfield" ng-show="authentication_state == 'registering'">
-              <input class="mdl-textfield__input" type="text" id="full_name" ng-model="authentication_full_name">
-              <label class="mdl-textfield__label" for="full_name">Full Name</label>
-            </div>
-            
-            <div class="mdl-textfield mdl-js-textfield {{ (authentication_error_email != '') ? 'is-invalid is-dirty' : '' }}" ng-show="authentication_state == 'signing_in' || authentication_state == 'registering'">
-              <input class="mdl-textfield__input" type="text" id="email" ng-model="authentication_email">
-              <label class="mdl-textfield__label" for="email">Email</label>
-              <span class="mdl-textfield__error">{{ authentication_error_email }}</span>
-            </div>
-            
-            <div class="mdl-textfield mdl-js-textfield {{ (authentication_error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="authentication_state == 'signing_in' || authentication_state == 'registering'">
-              <input class="mdl-textfield__input" type="password" id="password" ng-model="authentication_password">
-              <label class="mdl-textfield__label" for="password">Password</label>
-              <span class="mdl-textfield__error">{{ authentication_error_password }}</span>
-            </div>
-            
-            <div class="mdl-textfield mdl-js-textfield {{ (authentication_error_confirm_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="authentication_state == 'registering'">
-              <input class="mdl-textfield__input" type="password" id="confirm_password" ng-model="authentication_confirm_password">
-              <label class="mdl-textfield__label" for="confirm_password">Confirm password</label>
-              <span class="mdl-textfield__error">{{ authentication_error_confirm_password }}</span>
-            </div>
-            
-            <a class="option link" href="" ng-show="authentication_state == 'registering'" target="_blank">
-              Read Terms of Use
-            </a>
-            
-            <div class="option have_read" ng-show="authentication_state == 'registering'">
-              <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_terms_read">
-                <input type="checkbox" class="mdl-checkbox__input" ng-model="terms_read" id="checkbox_terms_read" >
-                <span class="mdl-checkbox__label">I have read Terms of Use</span>
-              </label>
-            </div>
-
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" ng-disabled="((authentication_in_progress) || (authentication_state == 'registering' && !terms_read))" ng-click="authenticationConfirm()">
-              {{ (authentication_state == 'signing_in') ? ((authentication_in_progress) ? 'Signing in' : 'Sign in') : '' }}
-              {{ (authentication_state == 'registering') ? ((authentication_in_progress) ? 'Registering' : 'Register') : '' }}
-            </button>
-
-            <a class="option" href="" ng-show="authentication_state == 'signing_in'" ng-click="authenticationResetPassword()">
-              FORGOT PASSWORD?
-            </a>
-
-            <a class="option" href="" ng-show="authentication_state == 'signing_in'" ng-click="authenticationStateChange('registering')">
-              REGISTER
-            </a>
-            
-            <a class="option" href="" ng-show="authentication_state == 'registering'" ng-click="authenticationStateChange('signing_in')">
-              SIGN IN
-            </a>
-          </form>
-        </div>
-      </main>
-    </div>
     
-    
-    <!-- Profile -->
-    <div ng-show="Firebase.user_id != null" class="chat mdl-layout mdl-js-layout">
-      <div class="mdl-layout__drawer {{ (my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (my_profile_visible) ? 'true' : 'false' }}">
-        <div class="presentation">
-          <img class="background_picture" ng-src="{{ getProfilePicture(Firebase.users[Firebase.user_id]) }}" />
-          
-          <div class="title">
-            MY PROFILE
-            <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="toggleEditProfile()">
-              <i class="material-icons">edit</i>
-            </button>
-          </div>
-          
-          <div class="profile_picture">
-            <img class="profile_picture" ng-src="{{ getProfilePicture(Firebase.users[Firebase.user_id]) }}" />
-            <div ng-show="editing_profile" class="edit"><a href="" ng-click="selectProfilePicture()">edit</a></div>
-            
-            <form action="">
-              <input id="profile_picture_file" type="file" accept="image/*,capture=camera" onchange="angular.element(this).scope().uploadProfilePicture(event)">
-            </form>
-            
-          </div>
-         
-          <div ng-show="!editing_profile" class="name">{{ (Firebase.users[Firebase.user_id].name != '') ? Firebase.users[Firebase.user_id].name : '[edit your name]' }}</div>
-          <input ng-show="editing_profile" type="text" class="mdl-textfield__input name" ng-model="Firebase.users[Firebase.user_id].name" placeholder="Type here..." ng-keypress="editProfileConfirm($event)">
-          <div class="email">{{ Firebase.users[Firebase.user_id].email }}</div>
-        </div>
-        <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href=""><i class="material-icons">question_answer</i> Support</a>
-          <a class="mdl-navigation__link" href=""><i class="material-icons">lock</i> Privacy Policy</a>
-          <a class="mdl-navigation__link" href=""><i class="material-icons">description</i> Terms of Use</a>
-          <a class="mdl-navigation__link sign_out" href="" ng-click="signOut()"><i class="material-icons">power_settings_new</i> Sign out</a>
-        </nav>
-      </div>
-      
-      
-      <!-- Main panel -->
-      <main class="mdl-layout__content">
-        <div class="mdl-grid mdl-grid--no-spacing">
-          <div ng-show="Firebase.users[Firebase.user_id].admin" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
-            <div class="head">
-              Manage
-            </div>
-            <div class="list">
-              <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
-                <div class="mdl-tabs__tab-bar">
-                    <a href="#users-panel" class="mdl-tabs__tab is-active" ng-click="getAllUsers()">Users</a>
-                    <a href="#groups-panel" class="mdl-tabs__tab">Groups</a>
-                </div>
-                <div class="mdl-tabs__panel is-active users" id="users-panel">
-                  <div class="list">
-                    <div ng-repeat="u in Firebase.users" class="user">
-                      <img class="profilepicture" ng-src="{{ getProfilePicture(u) }}" />
-                      <div class="name">
-                        <a href="" ng-click="showProfile(u.user_id)">{{ u.name }}</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="mdl-tabs__panel groups" id="groups-panel">
-                  <div class="list">
-                    <div ng-repeat="g in Firebase.groups" class="group">
-                      <div class="name">
-                        {{ g.name }}
-                        <span>{{ g.members_count }}/{{ Firebase.max_members_per_group }}</span>
-                      </div>
-                      <div class="members">
-                        <div class="member" ng-repeat="user_id in g.members">
-                          <img ng-src="{{ getProfilePicture(Firebase.users[user_id]) }}" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="messages mdl-cell mdl-cell--{{ (!Firebase.users[Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
-            <div class="head {{ (Firebase.users[Firebase.user_id].admin) ? 'is_admin' : '' }}">
-              {{ Firebase.groups[Firebase.users[Firebase.user_id].group_id].name }}
-              
-              <button id="menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon menu-lower-right">
-                <i class="material-icons">more_vert</i>
-              </button>
-
-              <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-lower-right">
-                <li class="mdl-menu__item" ng-click="downloadLog()">Download log</li>
-              </ul>
-            </div>
-            <div class="list" id="messages_list">
-              <div ng-repeat="m in messages" class="message b-{{ $index % 4 }}">
-                <img class="profilepicture" ng-src="{{ getProfilePicture(Firebase.users[m.user_id]) }}" />
-                <div class="name c-{{ Firebase.users[m.user_id].color }}">
-                  <a href="" ng-click="showProfile(m.user_id)">{{ Firebase.users[m.user_id].name }}</a>
-                </div>
-                <div class="when">
-                  {{ m.when | showTime }}
-                </div>
-                <div class="text">
-                  {{ m.text }}
-                </div>
-              </div>
-            </div>
-            <div class="new">
-              <textarea placeholder="Type here..." ng-model="new_message" ng-keypress="messageKeypressed($event)"></textarea>
-              <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="sendMessage(new_message)" ng-disabled="sending_message">
-                <i class="material-icons">send</i>
-              </button>
-            </div>
-          </div>
-          <div class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
-            <div class="head">
-              Group Users
-            </div>
-            <div class="list">
-              <div ng-repeat="user_id in Firebase.groups[Firebase.users[Firebase.user_id].group_id].members" class="member b-{{ $index % 4 }}">
-                <img class="profilepicture" ng-src="{{ getProfilePicture(Firebase.users[user_id]) }}" />
-                <div class="name c-{{ Firebase.users[user_id].color }}">
-                  <a href="" ng-click="showProfile(user_id)">{{ Firebase.users[user_id].name }}</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-      <div class="mdl-layout__obfuscator {{ (my_profile_visible) ? 'is-visible' : '' }}" ng-click="showMyProfile(false)"></div>
-    </div>
+    <ui-view></ui-view>
 
     <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
     <script>
@@ -249,5 +61,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-animate.min.js"></script>
     
     <script src="js/bundle.js"></script>
+    <script src="js/templates.js"></script>
   </body>
 </html>

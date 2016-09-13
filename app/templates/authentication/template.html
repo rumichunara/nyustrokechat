@@ -1,0 +1,62 @@
+<!-- Authentication -->
+<div ng-controller="AuthenticationController">
+  <div class="{{ (Firebase.user_id == null) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <main class="mdl-layout__content">
+      <div ng-show="Firebase.user_id == null" class="form">
+        <img class="logo" src="/img/logo_authentication.png">
+        <form action="" onsubmit="event.preventDefault();">
+          <div class="mdl-textfield mdl-js-textfield" ng-show="authentication_state == 'registering'">
+            <input class="mdl-textfield__input" type="text" id="full_name" ng-model="authentication_full_name">
+            <label class="mdl-textfield__label" for="full_name">Full Name</label>
+          </div>
+          
+          <div class="mdl-textfield mdl-js-textfield {{ (authentication_error_email != '') ? 'is-invalid is-dirty' : '' }}" ng-show="authentication_state == 'signing_in' || authentication_state == 'registering'">
+            <input class="mdl-textfield__input" type="text" id="email" ng-model="authentication_email">
+            <label class="mdl-textfield__label" for="email">Email</label>
+            <span class="mdl-textfield__error">{{ authentication_error_email }}</span>
+          </div>
+          
+          <div class="mdl-textfield mdl-js-textfield {{ (authentication_error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="authentication_state == 'signing_in' || authentication_state == 'registering'">
+            <input class="mdl-textfield__input" type="password" id="password" ng-model="authentication_password">
+            <label class="mdl-textfield__label" for="password">Password</label>
+            <span class="mdl-textfield__error">{{ authentication_error_password }}</span>
+          </div>
+          
+          <div class="mdl-textfield mdl-js-textfield {{ (authentication_error_confirm_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="authentication_state == 'registering'">
+            <input class="mdl-textfield__input" type="password" id="confirm_password" ng-model="authentication_confirm_password">
+            <label class="mdl-textfield__label" for="confirm_password">Confirm password</label>
+            <span class="mdl-textfield__error">{{ authentication_error_confirm_password }}</span>
+          </div>
+          
+          <a class="option link" href="" ng-show="authentication_state == 'registering'" target="_blank">
+            Read Terms of Use
+          </a>
+          
+          <div class="option have_read" ng-show="authentication_state == 'registering'">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_terms_read">
+              <input type="checkbox" class="mdl-checkbox__input" ng-model="terms_read" id="checkbox_terms_read" >
+              <span class="mdl-checkbox__label">I have read Terms of Use</span>
+            </label>
+          </div>
+
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" ng-disabled="((authentication_in_progress) || (authentication_state == 'registering' && !terms_read))" ng-click="authenticationConfirm()">
+            {{ (authentication_state == 'signing_in') ? ((authentication_in_progress) ? 'Signing in' : 'Sign in') : '' }}
+            {{ (authentication_state == 'registering') ? ((authentication_in_progress) ? 'Registering' : 'Register') : '' }}
+          </button>
+
+          <a class="option" href="" ng-show="authentication_state == 'signing_in'" ng-click="authenticationResetPassword()">
+            FORGOT PASSWORD?
+          </a>
+
+          <a class="option" href="" ng-show="authentication_state == 'signing_in'" ng-click="authenticationStateChange('registering')">
+            REGISTER
+          </a>
+          
+          <a class="option" href="" ng-show="authentication_state == 'registering'" ng-click="authenticationStateChange('signing_in')">
+            SIGN IN
+          </a>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>

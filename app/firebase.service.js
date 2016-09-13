@@ -1,212 +1,21 @@
-var date = require( '../node_modules/locutus/php/datetime/date' );
-
-var fileSaver = require( './filesaver.min' );
-
-
 angular
-  .module('nyuChat', [])
-  .controller('MainController', mainController)
-  .factory('Firebase', FirebaseService)
-  .filter('showTime', showTimeFilter);
-
-mainController.$inject = ['$rootScope', '$window', '$scope', 'Firebase', '$timeout'];
-
-function mainController($rootScope, $window, $scope, Firebase, $timeout) {
-  
-  // Our variables
-  $scope.authentication_state = 'signing_in';
-  $scope.terms_read = false;
-  $scope.authentication_in_progress = false;
-  
-  $scope.my_profile_visible = false;
-  $scope.editing_profile = false;
-  
-  $scope.sending_message = false;
-  $scope.new_message = '';
-  $scope.messages = [];
-  $scope.last_message_loaded = -1;
-
-  
-  // Initialization
-  $scope.Firebase = Firebase.init(function () {
-    if (!$scope.$$phase)
-      $scope.$apply();
-  }, function (m) {
-     $scope.messages.push(m);
-     
-     // Workaround for scrolling to the bottom on start but never again
-     $timeout(function() {
-       var t = new Date().getTime();
-       if ($scope.last_message_loaded == -1 || t - $scope.last_message_loaded <  100)
-       {
-         $scope.last_message_loaded = t;
-         jQuery('#messages_list').scrollTop(jQuery('#messages_list').prop("scrollHeight"));
-       }
-     }, 0);
-  });
-  
-  // Authentication stuff
-  $scope.authenticationReset = function () {
-    $scope.authentication_full_name = $scope.authentication_email = $scope.authentication_password = $scope.authentication_confirm_password = '';
-  }
-  $scope.authenticationReset();
-  $scope.authenticationErrorReset = function () {
-    $scope.authentication_error_email = $scope.authentication_error_password = $scope.authentication_error_confirm_password = '';
-  }
-  $scope.authenticationErrorReset();
-  
-  $scope.authenticationStateChange = function (s) {
-    $scope.authenticationReset();
-    $scope.authenticationErrorReset();
-    $scope.authentication_state = s;
-  }
-  
-  $scope.authenticationConfirm = function () {
-    $scope.authentication_in_progress = true;
-    if ($scope.authentication_state == 'registering') {
-      $scope.authenticationErrorReset();
-      if ($scope.authentication_password != $scope.authentication_confirm_password) {
-        $scope.authentication_error_confirm_password = 'The password and its confirmation do not match.';
-        $scope.authentication_in_progress = false;
-      }
-      else {
-        Firebase.createUserWithEmailAndPassword($scope.authentication_email, $scope.authentication_password, function(error) {
-          if (error.code == 'auth/weak-password')
-            $scope.authentication_error_password = error.message;
-          else
-            $scope.authentication_error_email = error.message;
-          $scope.authentication_in_progress = false;
-        });
-      }
-    }
-    else if ($scope.authentication_state == 'signing_in') {
-      Firebase.signInWithEmailAndPassword($scope.authentication_email, $scope.authentication_password, function(error) {
-        if (error.code == 'auth/wrong-password')
-          $scope.authentication_error_password = error.message;
-        else
-          $scope.authentication_error_email = error.message;
-        $scope.authentication_in_progress = false;
-      });
-    }
-  }
-  
-  $scope.authenticationResetPassword = function () {
-    Firebase.sendPasswordResetEmail($scope.authentication_email, function () {
-      $scope.authentication_error_email = 'An email has been sent to this address with further instructions';
-      $scope.authentication_in_progress = false;
-    }, function(error) {
-      $scope.authentication_error_email = error.message;
-      $scope.authentication_in_progress = false;
-    });
-  }
-  
-  $scope.signOut = Firebase.signOut;
-
-
-  
-  //Profile stuff
-  $scope.showMyProfile = function (b) {
-    $scope.my_profile_visible = b;
-  };
-  
-  $scope.toggleEditProfile = function () {
-    $scope.editing_profile = !$scope.editing_profile;
-  }
-  
-  $scope.editProfileConfirm = function (e) {
-    if (e.code == 'Enter') {
-      $scope.editing_profile = false;
-      Firebase.editUserProfileName(Firebase.users[Firebase.user_id].name);
-    }
-  }
-  
-  $scope.selectProfilePicture = function () {
-    document.getElementById('profile_picture_file').click();
-  }
-  
-  $scope.uploadProfilePicture = function (e) {
-    var file = e.target.files[0];
-    if (!file.type.match('image.*'))
-      return;
-    Firebase.saveProfilePicture(file);
-  }
-  
-  $scope.getProfilePicture = function (u) {
-     return (u == null || u.profile_picture == undefined || u.profile_picture == '') ? '/img/avatar.png' : u.profile_picture;
-  }
-  
-  $scope.showProfile = function (user_id) {
-      
-      Firebase.getUserData(user_id, function () {
-        var t = '';
-        t += '<div class="profile">';
-        t += '  <img src="' + $scope.getProfilePicture(Firebase.users[user_id]) + '" />';
-        t += '  <div class="name">' + Firebase.users[user_id].name + '</div>';
-        t += '  <div class="email">' + Firebase.users[user_id].email + '</div>';
-        t += '  <div class="joined">Joined <span>' + date('F j, Y', new Date(Firebase.users[user_id].joined)) + '</span></div>';
-        t += '  <div class="last">Last time active <span>' + date('F j, Y', new Date(Firebase.users[user_id].last_active)) + '</span></div>';
-        t += '</div>';
-        swal({title: '', text: t, html: true});
-      });
-      
-  },
-  
-  
-  // Chat stuff
-  
-  $scope.sendMessage = function (m) {
-    $scope.new_message = ''; // For not losing focus when pressing enter
-    $scope.sending_message = true;
-    Firebase.sendMessage(m, function () {
-      $scope.sending_message = false;
-      jQuery('#messages_list').scrollTop(jQuery('#messages_list').prop("scrollHeight"));
-    });
-  }
-  
-  $scope.messageKeypressed = function (e) {
-    if (e.code == 'Enter') {
-      var m = $scope.new_message; // For not losing focus when pressing enter
-      $scope.new_message = ''; // For not losing focus when pressing enter
-      $scope.sendMessage(m);
-      e.preventDefault(); // For not losing focus when pressing enter
-    }
-  }
-  
-  $scope.downloadLog = function () {
-    var cl = '';
-    angular.forEach($scope.messages, function (d, i) {
-      var t = new Date(d.when);
-      cl += '<tr>' + '<td>' + date('Y-m-d H:i:s', t) + '</td>' + '<td>' + Firebase.users[d.user_id].name + '</td>' + '<td>' + Firebase.users[d.user_id].message + '</td>' + '</tr>';
-    });
-    
-    var c = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Log</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>' + cl + '</table></body></html>';
-    
-    fileSaver.saveAs(new Blob([c] , {type: "application/vnd.ms-excel;charset=UTF-8"}), 'log' );
-  }
-  
-  // Admin stuff
-  // $scope.create_grup = function () {
-    // firebase.database().ref('/groups/').push({
-      // name: "Group 1",
-      // members: ['P89MVRvSTvQ5eGmeMGhWOYitmTd2', 'xCjTY3qt49exjsKT9db0VqPE9fU2']
-    // });
-  // };
-  // $scope.create_grup();
-}
-
-
+  .module('app')
+  .factory('Firebase', FirebaseService);
 
 
 // Services
-FirebaseService.$inject = [];
+FirebaseService.$inject = ['$rootScope', '$state', '$timeout'];
 
-function FirebaseService() {
+function FirebaseService($rootScope, $state, $timeout) {
   var instance = {
     
     // Internal stuff
-    _onEveryFirebaseRequest: function () {},
-    _whenNewMessage: function (){},
+    _onEveryFirebaseRequest: function () {
+      if (!$rootScope.$$phase)
+        $rootScope.$apply();
+    },
     
+    whenNewMessage: function (){},
     user_id: null,
     users: {},
     groups: {},
@@ -217,14 +26,7 @@ function FirebaseService() {
     
     
     // Initialization
-    init: function (onEveryFirebaseRequest, whenNewMessage) {
-      
-      if (typeof onEveryFirebaseRequest == 'function')
-        instance._onEveryFirebaseRequest = onEveryFirebaseRequest; // This exists because firebase requests do not run scope apply of Angular
-      
-      if (typeof whenNewMessage == 'function')
-        instance._whenNewMessage = whenNewMessage;
-      
+    init: function () {
       instance._onAuthStateChanged();
       
       return instance;
@@ -243,10 +45,12 @@ function FirebaseService() {
         
         if (user == null) {
           instance.user_id = null;
+          instance._afterAuthStateChanged();
           return;
         }
-                  
+          
         instance.user_id = user.uid;
+        instance._afterAuthStateChanged();
         
         if (instance.user_id != null) {
           firebase.database().ref('/users/' + instance.user_id).update({ last_active: new Date().getTime() });          
@@ -268,6 +72,16 @@ function FirebaseService() {
           
           instance._onEveryFirebaseRequest();
         }
+      });
+    },
+    
+    _afterAuthStateChanged: function () {
+      if (instance.user_id == null)
+        $state.go('authentication');
+      else
+        $state.go('home');
+      $timeout(function () {
+        componentHandler.upgradeAllRegistered();
       });
     },
     
@@ -401,7 +215,7 @@ function FirebaseService() {
       var d = v.val();
       // Let´s get the extra data of the message
       instance.getUserData(d.user_id);
-      instance._whenNewMessage(d);
+      instance.whenNewMessage(d);
       instance._onEveryFirebaseRequest();
       
       // When a message is loaded we save the "last active" timestamp
@@ -480,21 +294,4 @@ function FirebaseService() {
     }
   };
   return instance;
-}
-
-
-// Filters
-
-showTimeFilter.$inject = [];
-
-function showTimeFilter() {
-  return function(a) {
-    var d = new Date(a);
-    var s = '';
-    if (date('m-d', d) != date('m-d'))
-      s += date('M j');
-    if (date('Y', d) != date('Y'))
-      s += ((s != '') ? ', ' : '') + date('Y');
-    return ((s != '') ? ' - ' : '') + date('H:i', d);
-  };
 }
