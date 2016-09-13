@@ -1,0 +1,33 @@
+$header-height: 64px;
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none;
+}
+
+html {
+  body {
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  }
+}
+
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #EEEEEE;
+  background-repeat: repeat-x;
+}
+
+::-webkit-scrollbar-thumb {
+  border-style: none;
+  background-clip: padding-box;
+  -webkit-border-radius: 1px;
+  background-color: #DBDBDB;
+}
+

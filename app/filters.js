@@ -6,8 +6,6 @@ angular
   .filter('showTime', showTimeFilter);
   
 
-showTimeFilter.$inject = [];
-
 function showTimeFilter() {
   return function(a) {
     var d = new Date(a);

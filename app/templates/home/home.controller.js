@@ -117,13 +117,4 @@ function homeController($rootScope, $window, $scope, Firebase, $timeout) {
     
     fileSaver.saveAs(new Blob([c] , {type: "application/vnd.ms-excel;charset=UTF-8"}), 'log' );
   }
-  
-  // Admin stuff
-  // $scope.create_grup = function () {
-    // firebase.database().ref('/groups/').push({
-      // name: "Group 1",
-      // members: ['P89MVRvSTvQ5eGmeMGhWOYitmTd2', 'xCjTY3qt49exjsKT9db0VqPE9fU2']
-    // });
-  // };
-  // $scope.create_grup();
 }

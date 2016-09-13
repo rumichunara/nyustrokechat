@@ -2,8 +2,14 @@
 @import '../node_modules/material-design-lite/material';
 @import '../node_modules/material-design-lite/dist/material.deep_purple-blue.min';
 
-@import './sweetalert';
-@import './sweetalert-override.min';
+@import '../public/css/sweetalert';
+@import '../public/css/sweetalert-override.min';
 
 /* styles */
-@import 'custom/style';
+@import 'custom/colors';
+
+@import './templates/authentication/authentication';
+@import './templates/home/general';
+@import './templates/home/chat';
+@import './templates/home/admin';
+@import './templates/home/profile';
