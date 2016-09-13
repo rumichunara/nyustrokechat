@@ -143,8 +143,8 @@
       <!-- Main panel -->
       <main class="mdl-layout__content">
         <div class="mdl-grid mdl-grid--no-spacing">
-          <div ng-show="Firebase.users[Firebase.user_id].admin" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-tablet">
-            <div class="head {{ (Firebase.users[Firebase.user_id].admin) ? 'with_menu' : '' }}">
+          <div ng-show="Firebase.users[Firebase.user_id].admin" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
+            <div class="head">
               Manage
             </div>
             <div class="list">
@@ -181,12 +181,11 @@
               </div>
             </div>
           </div>
-          <div class="messages mdl-cell mdl-cell--{{ (!Firebase.users[Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-tablet">
-            <div class="head {{ (!Firebase.users[Firebase.user_id].admin) ? 'with_menu' : '' }}">
+          <div class="messages mdl-cell mdl-cell--{{ (!Firebase.users[Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
+            <div class="head {{ (Firebase.users[Firebase.user_id].admin) ? 'is_admin' : '' }}">
               {{ Firebase.groups[Firebase.users[Firebase.user_id].group_id].name }}
               
-              <button id="menu-lower-right"
-                      class="mdl-button mdl-js-button mdl-button--icon">
+              <button id="menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
                 <i class="material-icons">more_vert</i>
               </button>
 
@@ -215,7 +214,7 @@
               </button>
             </div>
           </div>
-          <div class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-tablet">
+          <div class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
             <div class="head">
               Group Users
             </div>

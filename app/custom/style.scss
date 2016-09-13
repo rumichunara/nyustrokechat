@@ -313,14 +313,23 @@ $header-height: 64px;
     box-sizing: border-box;
     position: relative;
     
-    &.with_menu {
-      padding-left: 72px;
-    }
-    
     #menu-lower-right {
       position: absolute;
       right: 20px;
       top: 16px;
+    }
+    
+    @media (max-width: 839px) {
+      &.is_admin {
+        padding-left: 72px;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 1024px) {
+    .mdl-layout__drawer-button {
+      margin: 10px 12px;
+      color: white;
     }
   }
   
@@ -468,6 +477,10 @@ $header-height: 64px;
 // Admin
 .admin {
   $tabs-height: 49px;
+  
+  .head {
+    padding-left: 72px;
+  }
   
   .mdl-tabs__tab-bar {
     background: #7B1FA2;
