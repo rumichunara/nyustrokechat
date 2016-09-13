@@ -7,65 +7,65 @@ authenticationController.$inject = ['$rootScope', '$window', '$scope', 'Firebase
 
 function authenticationController($rootScope, $window, $scope, Firebase, $timeout) {
   // Our variables
-  $scope.authentication_state = 'signing_in';
+  $scope.state = 'signing_in';
   $scope.terms_read = false;
-  $scope.authentication_in_progress = false;
+  $scope.in_progress = false;
   
   // Initialization
   $scope.Firebase = Firebase.init();
 
   // Authentication stuff
-  $scope.authenticationReset = function () {
-    $scope.authentication_full_name = $scope.authentication_email = $scope.authentication_password = $scope.authentication_confirm_password = '';
+  $scope.reset = function () {
+    $scope.full_name = $scope.email = $scope.password = $scope.confirm_password = '';
   }
-  $scope.authenticationReset();
-  $scope.authenticationErrorReset = function () {
-    $scope.authentication_error_email = $scope.authentication_error_password = $scope.authentication_error_confirm_password = '';
+  $scope.reset();
+  $scope.errorReset = function () {
+    $scope.error_email = $scope.error_password = $scope.error_confirm_password = '';
   }
-  $scope.authenticationErrorReset();
+  $scope.errorReset();
   
-  $scope.authenticationStateChange = function (s) {
-    $scope.authenticationReset();
-    $scope.authenticationErrorReset();
-    $scope.authentication_state = s;
+  $scope.stateChange = function (s) {
+    $scope.reset();
+    $scope.errorReset();
+    $scope.state = s;
   }
   
-  $scope.authenticationConfirm = function () {
-    $scope.authentication_in_progress = true;
-    if ($scope.authentication_state == 'registering') {
-      $scope.authenticationErrorReset();
-      if ($scope.authentication_password != $scope.authentication_confirm_password) {
-        $scope.authentication_error_confirm_password = 'The password and its confirmation do not match.';
-        $scope.authentication_in_progress = false;
+  $scope.confirm = function () {
+    $scope.in_progress = true;
+    if ($scope.state == 'registering') {
+      $scope.errorReset();
+      if ($scope.password != $scope.confirm_password) {
+        $scope.error_confirm_password = 'The password and its confirmation do not match.';
+        $scope.in_progress = false;
       }
       else {
-        Firebase.createUserWithEmailAndPassword($scope.authentication_email, $scope.authentication_password, function(error) {
+        Firebase.createUserWithEmailAndPassword($scope.email, $scope.password, function(error) {
           if (error.code == 'auth/weak-password')
-            $scope.authentication_error_password = error.message;
+            $scope.error_password = error.message;
           else
-            $scope.authentication_error_email = error.message;
-          $scope.authentication_in_progress = false;
+            $scope.error_email = error.message;
+          $scope.in_progress = false;
         });
       }
     }
-    else if ($scope.authentication_state == 'signing_in') {
-      Firebase.signInWithEmailAndPassword($scope.authentication_email, $scope.authentication_password, function(error) {
+    else if ($scope.state == 'signing_in') {
+      Firebase.signInWithEmailAndPassword($scope.email, $scope.password, function(error) {
         if (error.code == 'auth/wrong-password')
-          $scope.authentication_error_password = error.message;
+          $scope.error_password = error.message;
         else
-          $scope.authentication_error_email = error.message;
-        $scope.authentication_in_progress = false;
+          $scope.error_email = error.message;
+        $scope.in_progress = false;
       });
     }
   }
   
-  $scope.authenticationResetPassword = function () {
-    Firebase.sendPasswordResetEmail($scope.authentication_email, function () {
-      $scope.authentication_error_email = 'An email has been sent to this address with further instructions';
-      $scope.authentication_in_progress = false;
+  $scope.resetPassword = function () {
+    Firebase.sendPasswordResetEmail($scope.email, function () {
+      $scope.error_email = 'An email has been sent to this address with further instructions';
+      $scope.in_progress = false;
     }, function(error) {
-      $scope.authentication_error_email = error.message;
-      $scope.authentication_in_progress = false;
+      $scope.error_email = error.message;
+      $scope.in_progress = false;
     });
   }
 }
