@@ -38,10 +38,7 @@ function authenticationController( $scope, Firebase ) {
     if ( vm.state === 'registering' ) {
       vm.errorReset();
       
-      if ( vm.password !== vm.confirm_password ) {
-        vm.error_confirm_password = 'The password and its confirmation do not match.';
-        vm.in_progress = false;
-      } else {
+      if ( vm.password === vm.confirm_password ) {
         Firebase.createUserWithEmailAndPassword( vm.email, vm.password, function callback( error ) {
           if ( error.code === 'auth/weak-password' ) {
             vm.error_password = error.message;
@@ -50,6 +47,9 @@ function authenticationController( $scope, Firebase ) {
           }
           vm.in_progress = false;
         });
+      } else {
+        vm.error_confirm_password = 'The password and its confirmation do not match.';
+        vm.in_progress = false;
       }
       
     } else if ( vm.state === 'signing_in' ) {
