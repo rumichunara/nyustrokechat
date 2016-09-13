@@ -1,20 +1,20 @@
 <!-- Profile -->
-<div ng-controller="HomeController">
-  <div ng-show="Firebase.user_id != null" class="chat mdl-layout mdl-js-layout">
-    <div class="mdl-layout__drawer {{ (my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (my_profile_visible) ? 'true' : 'false' }}">
+<div ng-controller="HomeController as vm">
+  <div ng-show="vm.Firebase.user_id != null" class="chat mdl-layout mdl-js-layout">
+    <div class="mdl-layout__drawer {{ (vm.my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (vm.my_profile_visible) ? 'true' : 'false' }}">
       <div class="presentation">
-        <img class="background_picture" ng-src="{{ getProfilePicture(Firebase.users[Firebase.user_id]) }}" />
+        <img class="background_picture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[Firebase.user_id]) }}" />
         
         <div class="title">
           MY PROFILE
-          <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="toggleEditProfile()">
+          <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.toggleEditProfile()">
             <i class="material-icons">edit</i>
           </button>
         </div>
         
         <div class="profile_picture">
-          <img class="profile_picture" ng-src="{{ getProfilePicture(Firebase.users[Firebase.user_id]) }}" />
-          <div ng-show="editing_profile" class="edit"><a href="" ng-click="selectProfilePicture()">edit</a></div>
+          <img class="profile_picture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}" />
+          <div ng-show="vm.editing_profile" class="edit"><a href="" ng-click="vm.selectProfilePicture()">edit</a></div>
           
           <form action="">
             <input id="profile_picture_file" type="file" accept="image/*,capture=camera" onchange="angular.element(this).scope().uploadProfilePicture(event)">
@@ -22,15 +22,15 @@
           
         </div>
        
-        <div ng-show="!editing_profile" class="name">{{ (Firebase.users[Firebase.user_id].name != '') ? Firebase.users[Firebase.user_id].name : '[edit your name]' }}</div>
-        <input ng-show="editing_profile" type="text" class="mdl-textfield__input name" ng-model="Firebase.users[Firebase.user_id].name" placeholder="Type here..." ng-keypress="editProfileConfirm($event)">
-        <div class="email">{{ Firebase.users[Firebase.user_id].email }}</div>
+        <div ng-show="!vm.editing_profile" class="name">{{ (vm.Firebase.users[vm.Firebase.user_id].name != '') ? vm.Firebase.users[vm.Firebase.user_id].name : '[edit your name]' }}</div>
+        <input ng-show="vm.editing_profile" type="text" class="mdl-textfield__input name" ng-model="vm.Firebase.users[vm.Firebase.user_id].name" placeholder="Type here..." ng-keypress="vm.editProfileConfirm($event)">
+        <div class="email">{{ vm.Firebase.users[vm.Firebase.user_id].email }}</div>
       </div>
       <nav class="mdl-navigation">
         <a class="mdl-navigation__link" href=""><i class="material-icons">question_answer</i> Support</a>
         <a class="mdl-navigation__link" href=""><i class="material-icons">lock</i> Privacy Policy</a>
         <a class="mdl-navigation__link" href=""><i class="material-icons">description</i> Terms of Use</a>
-        <a class="mdl-navigation__link sign_out" href="" ng-click="Firebase.signOut()"><i class="material-icons">power_settings_new</i> Sign out</a>
+        <a class="mdl-navigation__link sign_out" href="" ng-click="vm.Firebase.signOut()"><i class="material-icons">power_settings_new</i> Sign out</a>
       </nav>
     </div>
     
@@ -38,36 +38,36 @@
     <!-- Main panel -->
     <main class="mdl-layout__content">
       <div class="mdl-grid mdl-grid--no-spacing">
-        <div ng-show="Firebase.users[Firebase.user_id].admin" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
+        <div ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
           <div class="head">
             Manage
           </div>
           <div class="list">
             <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
               <div class="mdl-tabs__tab-bar">
-                  <a href="#users-panel" class="mdl-tabs__tab is-active" ng-click="getAllUsers()">Users</a>
+                  <a href="#users-panel" class="mdl-tabs__tab is-active" ng-click="vm.getAllUsers()">Users</a>
                   <a href="#groups-panel" class="mdl-tabs__tab">Groups</a>
               </div>
               <div class="mdl-tabs__panel is-active users" id="users-panel">
                 <div class="list">
-                  <div ng-repeat="u in Firebase.users" class="user">
-                    <img class="profilepicture" ng-src="{{ getProfilePicture(u) }}" />
+                  <div ng-repeat="u in vm.Firebase.users" class="user">
+                    <img class="profilepicture" ng-src="{{ vm.getProfilePicture(u) }}" />
                     <div class="name">
-                      <a href="" ng-click="showProfile(u.user_id)">{{ u.name }}</a>
+                      <a href="" ng-click="vm.showProfile(u.user_id)">{{ u.name }}</a>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="mdl-tabs__panel groups" id="groups-panel">
                 <div class="list">
-                  <div ng-repeat="g in Firebase.groups" class="group">
+                  <div ng-repeat="g in vm.Firebase.groups" class="group">
                     <div class="name">
                       {{ g.name }}
-                      <span>{{ g.members_count }}/{{ Firebase.max_members_per_group }}</span>
+                      <span>{{ g.members_count }}/{{ vm.Firebase.max_members_per_group }}</span>
                     </div>
                     <div class="members">
                       <div class="member" ng-repeat="user_id in g.members">
-                        <img ng-src="{{ getProfilePicture(Firebase.users[user_id]) }}" />
+                        <img ng-src="{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}" />
                       </div>
                     </div>
                   </div>
@@ -76,23 +76,23 @@
             </div>
           </div>
         </div>
-        <div class="messages mdl-cell mdl-cell--{{ (!Firebase.users[Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
-          <div class="head {{ (Firebase.users[Firebase.user_id].admin) ? 'is_admin' : '' }}">
-            {{ Firebase.groups[Firebase.users[Firebase.user_id].group_id].name }}
+        <div class="messages mdl-cell mdl-cell--{{ (!vm.Firebase.users[vm.Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
+          <div class="head {{ (vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : '' }}">
+            {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
             
             <button id="menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon menu-lower-right">
               <i class="material-icons">more_vert</i>
             </button>
 
             <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-lower-right">
-              <li class="mdl-menu__item" ng-click="downloadLog()">Download log</li>
+              <li class="mdl-menu__item" ng-click="vm.downloadLog()">Download log</li>
             </ul>
           </div>
           <div class="list" id="messages_list">
-            <div ng-repeat="m in messages" class="message b-{{ $index % 4 }}">
-              <img class="profilepicture" ng-src="{{ getProfilePicture(Firebase.users[m.user_id]) }}" />
-              <div class="name c-{{ Firebase.users[m.user_id].color }}">
-                <a href="" ng-click="showProfile(m.user_id)">{{ Firebase.users[m.user_id].name }}</a>
+            <div ng-repeat="m in vm.messages" class="message b-{{ $index % 4 }}">
+              <img class="profilepicture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[m.user_id]) }}" />
+              <div class="name c-{{ vm.Firebase.users[m.user_id].color }}">
+                <a href="" ng-click="vm.showProfile(m.user_id)">{{ vm.Firebase.users[m.user_id].name }}</a>
               </div>
               <div class="when">
                 {{ m.when | showTime }}
@@ -103,8 +103,8 @@
             </div>
           </div>
           <div class="new">
-            <textarea placeholder="Type here..." ng-model="new_message" ng-keypress="messageKeypressed($event)"></textarea>
-            <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="sendMessage(new_message)" ng-disabled="sending_message">
+            <textarea placeholder="Type here..." ng-model="vm.new_message" ng-keypress="vm.messageKeypressed($event)"></textarea>
+            <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.sendMessage(new_message)" ng-disabled="vm.sending_message">
               <i class="material-icons">send</i>
             </button>
           </div>
@@ -114,16 +114,16 @@
             Group Users
           </div>
           <div class="list">
-            <div ng-repeat="user_id in Firebase.groups[Firebase.users[Firebase.user_id].group_id].members" class="member b-{{ $index % 4 }}">
-              <img class="profilepicture" ng-src="{{ getProfilePicture(Firebase.users[user_id]) }}" />
-              <div class="name c-{{ Firebase.users[user_id].color }}">
-                <a href="" ng-click="showProfile(user_id)">{{ Firebase.users[user_id].name }}</a>
+            <div ng-repeat="user_id in vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].members" class="member b-{{ $index % 4 }}">
+              <img class="profilepicture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}" />
+              <div class="name c-{{ vm.Firebase.users[user_id].color }}">
+                <a href="" ng-click="vm.showProfile(user_id)">{{ vm.Firebase.users[user_id].name }}</a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </main>
-    <div class="mdl-layout__obfuscator {{ (my_profile_visible) ? 'is-visible' : '' }}" ng-click="showMyProfile(false)"></div>
+    <div class="mdl-layout__obfuscator {{ (vm.my_profile_visible) ? 'is-visible' : '' }}" ng-click="vm.showMyProfile(false)"></div>
   </div>
 </div>

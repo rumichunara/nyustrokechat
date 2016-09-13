@@ -16,6 +16,7 @@ function FirebaseService($rootScope, $state, $timeout) {
     },
     
     whenNewMessage: function (){},
+    
     user_id: null,
     users: {},
     groups: {},
@@ -201,6 +202,10 @@ function FirebaseService($rootScope, $state, $timeout) {
     
 
     // Message stuff
+    assignwhenNewMessage: function (d) {
+      instance.whenNewMessage = d;
+    },
+    
     loadMessages: function () {
       if (instance.users[instance.user_id].group_id != '')
       {

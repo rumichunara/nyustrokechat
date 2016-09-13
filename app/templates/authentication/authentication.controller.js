@@ -1,72 +1,77 @@
 angular
-  .module('app')
-  .controller('AuthenticationController', authenticationController);
+  .module( 'app' )
+  .controller( 'AuthenticationController', authenticationController );
   
-authenticationController.$inject = ['$rootScope', '$window', '$scope', 'Firebase', '$timeout'];
+authenticationController.$inject = ['$scope', 'Firebase'];
 
 
-function authenticationController($rootScope, $window, $scope, Firebase, $timeout) {
+function authenticationController( $scope, Firebase ) {
   // Our variables
-  $scope.state = 'signing_in';
-  $scope.terms_read = false;
-  $scope.in_progress = false;
+  var vm = this;
+  vm.state = 'signing_in';
+  vm.terms_read = false;
+  vm.in_progress = false;
   
   // Initialization
-  $scope.Firebase = Firebase.init();
+  vm.Firebase = Firebase.init();
 
   // Authentication stuff
-  $scope.reset = function () {
-    $scope.full_name = $scope.email = $scope.password = $scope.confirm_password = '';
-  }
-  $scope.reset();
-  $scope.errorReset = function () {
-    $scope.error_email = $scope.error_password = $scope.error_confirm_password = '';
-  }
-  $scope.errorReset();
+  vm.reset = function reset() {
+    vm.full_name = vm.email = vm.password = vm.confirm_password = '';
+  };
   
-  $scope.stateChange = function (s) {
-    $scope.reset();
-    $scope.errorReset();
-    $scope.state = s;
-  }
+  vm.reset();
+  vm.errorReset = function errorReset() {
+    vm.error_email = vm.error_password = vm.error_confirm_password = '';
+  };
   
-  $scope.confirm = function () {
-    $scope.in_progress = true;
-    if ($scope.state == 'registering') {
-      $scope.errorReset();
-      if ($scope.password != $scope.confirm_password) {
-        $scope.error_confirm_password = 'The password and its confirmation do not match.';
-        $scope.in_progress = false;
-      }
-      else {
-        Firebase.createUserWithEmailAndPassword($scope.email, $scope.password, function(error) {
-          if (error.code == 'auth/weak-password')
-            $scope.error_password = error.message;
-          else
-            $scope.error_email = error.message;
-          $scope.in_progress = false;
+  vm.errorReset();
+  
+  vm.stateChange = function stateChange( s ) {
+    vm.reset();
+    vm.errorReset();
+    vm.state = s;
+  };
+  
+  vm.confirm = function confirm() {
+    vm.in_progress = true;
+    if ( vm.state === 'registering' ) {
+      vm.errorReset();
+      
+      if ( vm.password !== vm.confirm_password ) {
+        vm.error_confirm_password = 'The password and its confirmation do not match.';
+        vm.in_progress = false;
+      } else {
+        Firebase.createUserWithEmailAndPassword( vm.email, vm.password, function callback( error ) {
+          if ( error.code === 'auth/weak-password' ) {
+            vm.error_password = error.message;
+          } else {
+            vm.error_email = error.message;
+          }
+          vm.in_progress = false;
         });
       }
-    }
-    else if ($scope.state == 'signing_in') {
-      Firebase.signInWithEmailAndPassword($scope.email, $scope.password, function(error) {
-        if (error.code == 'auth/wrong-password')
-          $scope.error_password = error.message;
-        else
-          $scope.error_email = error.message;
-        $scope.in_progress = false;
+      
+    } else if ( vm.state === 'signing_in' ) {
+      Firebase.signInWithEmailAndPassword( vm.email, vm.password, function callback( error ) {
+        if ( error.code === 'auth/wrong-password' ) {
+          vm.error_password = error.message;
+        } else {
+          vm.error_email = error.message;
+        }
+        vm.in_progress = false;
       });
     }
-  }
+  };
   
-  $scope.resetPassword = function () {
-    Firebase.sendPasswordResetEmail($scope.email, function () {
-      $scope.error_email = 'An email has been sent to this address with further instructions';
-      $scope.in_progress = false;
-    }, function(error) {
-      $scope.error_email = error.message;
-      $scope.in_progress = false;
+  vm.resetPassword = function resetPassword() {
+    Firebase.sendPasswordResetEmail( vm.email, function callbackSuccess() {
+      vm.error_email = 'An email has been sent to this address with further instructions';
+      vm.in_progress = false;
+    }, function callbackError( error ) {
+      vm.error_email = error.message;
+      vm.in_progress = false;
     });
-  }
+  };
 }
 

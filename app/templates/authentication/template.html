@@ -1,58 +1,58 @@
 <!-- Authentication -->
-<div ng-controller="AuthenticationController">
-  <div class="{{ (Firebase.user_id == null) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
+<div ng-controller="AuthenticationController as vm">
+  <div class="{{ ( vm.Firebase.user_id === null ) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <main class="mdl-layout__content">
-      <div ng-show="Firebase.user_id == null" class="form">
+      <div ng-show="vm.Firebase.user_id === null" class="form">
         <img class="logo" src="/img/logo_authentication.png">
-        <form action="" onsubmit="event.preventDefault();">
-          <div class="mdl-textfield mdl-js-textfield" ng-show="state == 'registering'">
-            <input class="mdl-textfield__input" type="text" id="full_name" ng-model="full_name">
+        <form action="" onsubmit="event.preventDefault()">
+          <div class="mdl-textfield mdl-js-textfield" ng-show="vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="text" id="full_name" ng-model="vm.full_name">
             <label class="mdl-textfield__label" for="full_name">Full Name</label>
           </div>
           
-          <div class="mdl-textfield mdl-js-textfield {{ (error_email != '') ? 'is-invalid is-dirty' : '' }}" ng-show="state == 'signing_in' || state == 'registering'">
-            <input class="mdl-textfield__input" type="text" id="email" ng-model="email">
+          <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_email != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="text" id="email" ng-model="vm.email">
             <label class="mdl-textfield__label" for="email">Email</label>
-            <span class="mdl-textfield__error">{{ error_email }}</span>
+            <span class="mdl-textfield__error">{{ vm.error_email }}</span>
           </div>
           
-          <div class="mdl-textfield mdl-js-textfield {{ (error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="state == 'signing_in' || state == 'registering'">
-            <input class="mdl-textfield__input" type="password" id="password" ng-model="password">
+          <div class="mdl-textfield mdl-js-textfield {{ (vm.error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="password" id="password" ng-model="vm.password">
             <label class="mdl-textfield__label" for="password">Password</label>
-            <span class="mdl-textfield__error">{{ error_password }}</span>
+            <span class="mdl-textfield__error">{{ vm.error_password }}</span>
           </div>
           
-          <div class="mdl-textfield mdl-js-textfield {{ (error_confirm_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="state == 'registering'">
-            <input class="mdl-textfield__input" type="password" id="confirm_password" ng-model="confirm_password">
+          <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_confirm_password != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="password" id="confirm_password" ng-model="vm.confirm_password">
             <label class="mdl-textfield__label" for="confirm_password">Confirm password</label>
-            <span class="mdl-textfield__error">{{ error_confirm_password }}</span>
+            <span class="mdl-textfield__error">{{ vm.error_confirm_password }}</span>
           </div>
           
-          <a class="option link" href="" ng-show="state == 'registering'" target="_blank">
+          <a class="option link" href="" ng-show="vm.state === 'registering'" target="_blank">
             Read Terms of Use
           </a>
           
-          <div class="option have_read" ng-show="state == 'registering'">
+          <div class="option have_read" ng-show="vm.state === 'registering'">
             <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_terms_read">
-              <input type="checkbox" class="mdl-checkbox__input" ng-model="terms_read" id="checkbox_terms_read" >
+              <input type="checkbox" class="mdl-checkbox__input" ng-model="vm.terms_read" id="checkbox_terms_read" >
               <span class="mdl-checkbox__label">I have read Terms of Use</span>
             </label>
           </div>
 
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" ng-disabled="((in_progress) || (state == 'registering' && !terms_read))" ng-click="confirm()">
-            {{ (state == 'signing_in') ? ((in_progress) ? 'Signing in' : 'Sign in') : '' }}
-            {{ (state == 'registering') ? ((in_progress) ? 'Registering' : 'Register') : '' }}
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" ng-disabled="( ( vm.in_progress ) || ( vm.state === 'registering' && !vm.terms_read ) )" ng-click="vm.confirm()">
+            {{ ( vm.state === 'signing_in' ) ? ( ( vm.in_progress ) ? 'Signing in' : 'Sign in' ) : '' }}
+            {{ ( vm.state === 'registering' ) ? ( ( vm.in_progress ) ? 'Registering' : 'Register' ) : '' }}
           </button>
 
-          <a class="option" href="" ng-show="state == 'signing_in'" ng-click="resetPassword()">
+          <a class="option" href="" ng-show="vm.state === 'signing_in'" ng-click="vm.resetPassword()">
             FORGOT PASSWORD?
           </a>
 
-          <a class="option" href="" ng-show="state == 'signing_in'" ng-click="stateChange('registering')">
+          <a class="option" href="" ng-show="vm.state === 'signing_in'" ng-click="vm.stateChange( 'registering' )">
             REGISTER
           </a>
           
-          <a class="option" href="" ng-show="state == 'registering'" ng-click="stateChange('signing_in')">
+          <a class="option" href="" ng-show="vm.state === 'registering'" ng-click="vm.stateChange( 'signing_in' )">
             SIGN IN
           </a>
         </form>
