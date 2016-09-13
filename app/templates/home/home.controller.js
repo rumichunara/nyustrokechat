@@ -9,10 +9,10 @@ angular
   .controller( 'HomeController', homeController );
   
   
-homeController.$inject = ['Firebase', '$timeout'];
+homeController.$inject = ['Firebase', '$timeout', '$document'];
 
 
-function homeController( Firebase, $timeout ) {
+function homeController( Firebase, $timeout, $document ) {
   
   var vm = this;
   vm.Firebase = Firebase.init();
@@ -56,7 +56,7 @@ function homeController( Firebase, $timeout ) {
   };
   
   vm.selectProfilePicture = function selectProfilePicture () {
-    document.getElementById( 'profile_picture_file' ).click();
+    $document[0].getElementById( 'profile_picture_file' ).click();
   };
   
   vm.uploadProfilePicture = function uploadProfilePicture ( e ) {
@@ -68,19 +68,28 @@ function homeController( Firebase, $timeout ) {
   };
   
   vm.getProfilePicture = function getProfilePicture ( u ) {
-     return ( u === null || angular.isUndefined( u.profile_picture ) || u.profile_picture === '' ) ? '/img/avatar.png' : u.profile_picture;
+    return ( u === null || angular.isUndefined( u.profile_picture ) || u.profile_picture === '' ) ? '/img/avatar.png' : u.profile_picture;
   };
   
   vm.showProfile = function showProfile ( userId ) {
     Firebase.getUserData( userId, function callback () {
-      var t = '';
-      t += '<div class="profile">';
-      t += '  <img src="' + vm.getProfilePicture(Firebase.users[userId]) + '" />';
-      t += '  <div class="name">' + Firebase.users[userId].name + '</div>';
-      t += '  <div class="email">' + Firebase.users[userId].email + '</div>';
-      t += '  <div class="joined">Joined <span>' + date( 'F j, Y', new Date( Firebase.users[userId].joined ) ) + '</span></div>';
-      t += '  <div class="last">Last time active <span>' + date( 'F j, Y', new Date( Firebase.users[userId].last_active ) ) + '</span></div>';
-      t += '</div>';
+      var usr = Firebase.users[userId];
+      var imgSrc = vm.getProfilePicture( usr );
+      var usrName = usr.name;
+      var usrEmail = usr.email;
+      var joinedDate = date( 'F j, Y', new Date( usr.joined ) );
+      var lastActive = date( 'F j, Y', new Date( usr.last_active ) );
+
+      var t = `
+        <div class="profile">
+          <img src="${imgSrc}" />
+          <div class="name">${usrName}</div>
+          <div class="email">${usrEmail}</div>
+          <div class="joined">Joined <span>${joinedDate}</span></div>
+          <div class="last">Last time active <span>${lastActive}</span></div>
+        </div>
+      `;
+
       swal({title: '', text: t, html: true});
     });      
   };
@@ -108,19 +117,30 @@ function homeController( Firebase, $timeout ) {
   
   vm.downloadLog = function downloadLog () {
     var cl = '';
+
     angular.forEach( vm.messages, function forEach ( d ) {
       var t = new Date( d.when );
-      cl = cl + '<tr><td>' + date( 'Y-m-d H:i:s', t ) + '</td><td>' + Firebase.users[d.user_id].name + '</td><td>' + Firebase.users[d.user_id].message + '</td></tr>';
+      var strDate = date( 'Y-m-d H:i:s', t );
+      var usrName = Firebase.users[d.user_id].name;
+      var msg = Firebase.users[d.user_id].message;
+
+      cl = `${cl}<tr><td>${strDate}</td><td>${usrName}</td><td>${msg}</td></tr>`;
     });
     
-    var c = '<html xmlns:o="urn:schemas-microsoft-com:office:office"'
-      + ' xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'
-      + '<head>'
-      + '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
-      + '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
-      + '<x:Name>Log</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>'
-      + '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'
-      + '</head><body><table>' + cl + '</table></body></html>';
+    var c = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+        xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+          <x:Name>Log</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+          </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+        </head>
+        <body>
+          <table>${cl}</table>
+        </body>
+      </html>
+    `;
     
     fileSaver.saveAs( new Blob([c] , {type: 'application/vnd.ms-excel;charset=UTF-8'}), 'log' );
   };

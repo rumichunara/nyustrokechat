@@ -95,7 +95,7 @@
   },
   "globals": {
     "angular": 1,
-    "TweenMax": 1
+    "swal": 1
   },
   "extends": "eslint:recommended",
   "ecmaFeatures": {
