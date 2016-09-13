@@ -140,15 +140,52 @@
       </div>
       
       
-      <!-- Main chat -->
+      <!-- Main panel -->
       <main class="mdl-layout__content">
-        <div class="mdl-grid">
-          <div class="messages mdl-cell mdl-cell--10-col-desktop mdl-cell--12-col-tablet">
-            <div class="head with_menu">
+        <div class="mdl-grid mdl-grid--no-spacing">
+          <div ng-show="Firebase.users[Firebase.user_id].admin" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
+            <div class="head">
+              Manage
+            </div>
+            <div class="list">
+              <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                <div class="mdl-tabs__tab-bar">
+                    <a href="#users-panel" class="mdl-tabs__tab is-active" ng-click="getAllUsers()">Users</a>
+                    <a href="#groups-panel" class="mdl-tabs__tab">Groups</a>
+                </div>
+                <div class="mdl-tabs__panel is-active users" id="users-panel">
+                  <div class="list">
+                    <div ng-repeat="u in Firebase.users" class="user">
+                      <img class="profilepicture" ng-src="{{ getProfilePicture(u) }}" />
+                      <div class="name">
+                        <a href="" ng-click="showProfile(u.user_id)">{{ u.name }}</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mdl-tabs__panel groups" id="groups-panel">
+                  <div class="list">
+                    <div ng-repeat="g in Firebase.groups" class="group">
+                      <div class="name">
+                        {{ g.name }}
+                        <span>{{ g.members_count }}/{{ Firebase.max_members_per_group }}</span>
+                      </div>
+                      <div class="members">
+                        <div class="member" ng-repeat="user_id in g.members">
+                          <img ng-src="{{ getProfilePicture(Firebase.users[user_id]) }}" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="messages mdl-cell mdl-cell--{{ (!Firebase.users[Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
+            <div class="head {{ (Firebase.users[Firebase.user_id].admin) ? 'is_admin' : '' }}">
               {{ Firebase.groups[Firebase.users[Firebase.user_id].group_id].name }}
               
-              <button id="menu-lower-right"
-                      class="mdl-button mdl-js-button mdl-button--icon">
+              <button id="menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon menu-lower-right">
                 <i class="material-icons">more_vert</i>
               </button>
 
@@ -177,7 +214,7 @@
               </button>
             </div>
           </div>
-          <div class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-tablet">
+          <div class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--hide-phone mdl-cell--hide-tablet">
             <div class="head">
               Group Users
             </div>
