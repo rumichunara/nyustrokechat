@@ -1,3 +1,5 @@
+/*eslint no-negated-condition: 1*/
+
 var date = require( '../node_modules/locutus/php/datetime/date' );
 
 
