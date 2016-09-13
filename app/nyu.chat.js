@@ -210,6 +210,7 @@ function FirebaseService() {
     user_id: null,
     users: {},
     groups: {},
+    max_members_per_group: 6,
     
     colors: ['blue', 'green', 'red', 'yellow', 'brown', 'pink', 'indigo',  'lightgreen', 'purple','amber', 'lightblue', 'deeporange', 'cyan','deeppurple', 'lime', 'teal', 'orange', 'bluegrey'],
     last_color_used: -1,
@@ -259,7 +260,10 @@ function FirebaseService() {
             
             // If its an admin
             if (instance.users[instance.user_id].admin)
+            {
               instance.getAllUsers();
+              instance.getAllGroups();
+            }
           });
           
           instance._onEveryFirebaseRequest();
@@ -438,9 +442,11 @@ function FirebaseService() {
         instance.groups[group_id].group_id = (v != null  && v.group_id != undefined) ? v.group_id : '';
         instance.groups[group_id].name = (v != null  && v.name != undefined) ? v.name : '';
         instance.groups[group_id].members = (v != null  && v.members != undefined) ? v.members : {};
+        instance.groups[group_id].members_count = 0;
         
         angular.forEach(instance.groups[group_id].members, function (user_id, d) {
           instance.getUserData(user_id);
+          instance.groups[group_id].members_count++;
         });
         
         if (typeof on_get == 'function')
@@ -458,6 +464,16 @@ function FirebaseService() {
       var r = firebase.database().ref('/users/');
       r.on('child_added', function (s) {
         instance.getUserData(s.val().user_id);
+        r.off();
+        instance._onEveryFirebaseRequest();
+      });
+    },
+    
+    
+    getAllGroups: function () {
+      var r = firebase.database().ref('/groups/');
+      r.on('child_added', function (s) {
+        instance.getGroupData(s.val().group_id);
         r.off();
         instance._onEveryFirebaseRequest();
       });

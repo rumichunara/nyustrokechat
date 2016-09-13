@@ -519,6 +519,45 @@ $header-height: 64px;
       }
     }
   }
+  
+  .groups {
+    .list {
+      border-right: 1px solid #E0E0E0;
+      height: calc(100vh - #{$header-height} - #{$tabs-height});
+      overflow-y: auto;
+      background-color: white;
+      
+      .group {
+        padding: 16px 0px 41px 24px;
+        min-height: 40px;
+        border-bottom: 1px solid #F5F5F5;
+        
+        .name {
+          letter-spacing: 0.3px;
+          font-weight: 500;
+          margin-right: 5px;
+          line-height: 40px;
+          
+          span {
+            color: #CECECE;
+            margin-left: 5px;
+          }
+        }
+        
+        .members {
+          .member {
+            img {
+              float: left;
+              margin-right: 4px;
+              display: inline;
+              width: 25px;
+              border-radius: 50%;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 

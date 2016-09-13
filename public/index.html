@@ -163,8 +163,20 @@
                     </div>
                   </div>
                 </div>
-                <div class="mdl-tabs__panel" id="groups-panel">
-                  Groups
+                <div class="mdl-tabs__panel groups" id="groups-panel">
+                  <div class="list">
+                    <div ng-repeat="g in Firebase.groups" class="group">
+                      <div class="name">
+                        {{ g.name }}
+                        <span>{{ g.members_count }}/{{ Firebase.max_members_per_group }}</span>
+                      </div>
+                      <div class="members">
+                        <div class="member" ng-repeat="user_id in g.members">
+                          <img ng-src="{{ getProfilePicture(Firebase.users[user_id]) }}" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
