@@ -1,2 +1,2 @@
-require('./authentication/authentication.controller');
-require('./home/home.controller');
+require( './authentication/authentication.controller' );
+require( './home/home.controller' );
