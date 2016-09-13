@@ -23,10 +23,6 @@
     "gulp-ng-constant": "^1.1.0",
     "gulp-uglify": "^1.5.3",
     "jquery": "^3.1.0",
-    "json-server": "^0.8.8",
-    "ln-cms": "^2.0.0",
-    "ln-filters": "^0.4.5",
-    "ln-patternlab": "^0.2.1",
     "locutus": "^2.0.5",
     "node-sass": "^3.4.2",
     "npm-run-all": "^1.5.1",
@@ -62,12 +58,11 @@
   },
   "scripts": {
     "set-up": "bower install && mkdir -p public/js public/css public/img && npm run dev",
-    "json-server": "json-server --watch config/json/db.json --port 3000 --static ./htdocs",
     "start": "node bs.js",
     "ci": "npm run js:ci -s && npm run styles:ci -s",
-    "dev": "npm run patterns:build && npm run config:dev && npm run js:dev && npm run styles:dev && npm run templates:dev",
-    "staging": "npm run patterns:build && npm run config:staging && npm run js:build && npm run styles:build && npm run templates:build",
-    "build": "npm run patterns:build && npm run config:build && npm run js:build && npm run styles:build && npm run templates:build",
+    "dev": "npm run config:dev && npm run js:dev && npm run styles:dev && npm run templates:dev",
+    "staging": "npm run config:staging && npm run js:build && npm run styles:build && npm run templates:build",
+    "build": "npm run config:build && npm run js:build && npm run styles:build && npm run templates:build",
     "watch": "npm run dev && npm-run-all -p js:watch styles:watch templates:watch config:watch",
     "js:ci": "eslint app/\\*\\*/\\*.js",
     "js": "npm run js:dev",
@@ -86,8 +81,7 @@
     "config:dev": "gulp config:dev",
     "config:staging": "gulp config:staging",
     "config:build": "gulp config:build",
-    "config:watch": "onchange config/\\*.json -- npm-run-all -s patterns:build config:dev js:dev",
-    "patterns:build": "ln-patterns"
+    "config:watch": "onchange config/\\*.json -- npm-run-all -s config:dev js:dev"
   },
   "dependencies": {
     "material-design-lite": "^1.2.0"
