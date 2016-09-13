@@ -4,7 +4,7 @@ angular
     'ngConstants',
     'ngSanitize',
     'ngAnimate',
-    'templateCache'
+    'templateCache',
   ])
   .config( appConfig );
 
@@ -20,28 +20,28 @@ function appConfig( $locationProvider, $stateProvider ) {
   var homeState = {
     name: 'home',
     url: '/',
-    templateUrl: 'templates/home/template.html'
-  }
+    templateUrl: 'templates/home/template.html',
+  };
 
   var authenticationState = {
     name: 'authentication',
     url: '/authenticate',
-    templateUrl: 'templates/authentication/template.html'
-  }
+    templateUrl: 'templates/authentication/template.html',
+  };
 
-  $stateProvider.state(homeState);
-  $stateProvider.state(authenticationState);
+  $stateProvider.state( homeState );
+  $stateProvider.state( authenticationState );
   
 }
 
 //
 // DEPENDENCIES
 //
-global.jQuery = require('../node_modules/jquery/dist/jquery.min');
+global.jQuery = require( '../node_modules/jquery/dist/jquery.min' );
 require( '../public/js/ngConstants.js' );
 require( '../node_modules/material-design-lite/material.js' );
-require('../node_modules/angular-ui-router');
-require('./firebase.service');
-require('./filters');
-require('./templates'); 
+require( '../node_modules/angular-ui-router' );
+require( './firebase.service' );
+require( './filters' );
+require( './templates' ); 
 
