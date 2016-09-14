@@ -15,3 +15,5 @@ public/*
 !public/fonts
 .idea
 !public/*.ico
+!public/js
+!public/css
