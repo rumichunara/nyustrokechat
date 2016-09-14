@@ -63,7 +63,7 @@
     "staging": "npm run config:staging && npm run js:build && npm run styles:build && npm run templates:build",
     "build": "npm run config:build && npm run js:build && npm run styles:build && npm run templates:build",
     "watch": "npm run dev && npm-run-all -p js:watch styles:watch templates:watch config:watch",
-    "js:ci": "eslint app/\\*\\*/\\*.js",
+    "js:ci": "eslint app/\\*.js app/\\*\\*/\\*.js",
     "js": "npm run js:dev",
     "js:dev": "gulp js:dev",
     "js:build": "gulp js:build",

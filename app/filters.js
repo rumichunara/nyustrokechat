@@ -18,9 +18,9 @@ function showTimeFilter() {
     }
 
     if ( date( 'Y', d ) !== date( 'Y' ) ) {
-      s += ( ( s !== '' ) ? ', ' : '' ) + date( 'Y' );
+      s += ( ( s === '' ) ? '' : ', ' ) + date( 'Y' );
     }
 
-    return ( ( s !== '' ) ? ' - ' : '' ) + date( 'H:i', d );
+    return ( ( s === '' ) ? '' : ' - ' ) + date( 'H:i', d );
   };
 }

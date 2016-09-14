@@ -95,7 +95,9 @@
   },
   "globals": {
     "angular": 1,
-    "swal": 1
+    "swal": 1,
+    "firebase": 1,
+    "componentHandler": 1
   },
   "extends": "eslint:recommended",
   "ecmaFeatures": {

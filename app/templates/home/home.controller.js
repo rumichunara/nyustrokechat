@@ -68,7 +68,12 @@ function homeController( Firebase, $timeout, $document ) {
   };
   
   vm.getProfilePicture = function getProfilePicture ( u ) {
-    return ( u === null || angular.isUndefined( u.profile_picture ) || u.profile_picture === '' ) ? '/img/avatar.png' : u.profile_picture;
+    if ( u === null || angular.isUndefined( u ) 
+        || angular.isUndefined( u.profile_picture ) || u.profile_picture === '' ) {
+      return '/img/avatar.png';
+    } else { 
+      return u.profile_picture;
+    }
   };
   
   vm.showProfile = function showProfile ( userId ) {
