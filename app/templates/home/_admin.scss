@@ -23,11 +23,13 @@
       height: calc(100vh - #{$header-height} - #{$tabs-height});
       overflow-y: auto;
       background-color: $white;
+      position: relative;
 
       .user {
         padding: 16px 0 16px 24px;
         min-height: 40px;
         border-bottom: 1px solid #F5F5F5;
+        position: relative;
 
         .profilepicture {
           display: inline;
@@ -48,10 +50,21 @@
           line-height: 40px;
 
           a {
+            color: $dark-gray;
             text-decoration: none;
-            color: inherit;
           }
         }
+
+        .menu-more {
+          position: absolute;
+          right: 10px;
+        }
+      }
+
+      .add {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
       }
     }
   }
@@ -62,6 +75,7 @@
       height: calc(100vh - #{$header-height} - #{$tabs-height});
       overflow-y: auto;
       background-color: $white;
+      position: relative;
 
       .group {
         padding: 16px 0 41px 24px;
@@ -73,6 +87,11 @@
           font-weight: 500;
           margin-right: 5px;
           line-height: 40px;
+
+          a {
+            color: $dark-gray;
+            text-decoration: none;
+          }
 
           span {
             color: $lightgray;
@@ -91,6 +110,12 @@
             }
           }
         }
+      }
+
+      .add {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
       }
     }
   }

@@ -21,6 +21,6 @@ function showTimeFilter() {
       s += ( ( s === '' ) ? '' : ', ' ) + date( 'Y' );
     }
 
-    return ( ( s === '' ) ? '' : ' - ' ) + date( 'H:i', d );
+    return s + ( ( s === '' ) ? '' : ' - ' ) + date( 'H:i', d );
   };
 }
