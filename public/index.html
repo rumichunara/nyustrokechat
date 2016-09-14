@@ -1,13 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="app" ng-controller="MainController as m">
-  <head ln-cms-meta="{{vm.meta}}">
+<html lang="en" ng-app="app">
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
     <meta name="fragment" content="!" />
     <base href="/">
+    
     <!-- font inclusion -->
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Roboto:300,400,500,700' type='text/css'>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     <!-- Disable tap highlight on IE -->
     <meta name="msapplication-tap-highlight" content="no">
@@ -33,20 +36,13 @@
     <!-- styles inclusion -->
     <link rel="stylesheet" href="css/style.css">
   </head>
-  <body data-has-loader="true">
+  <body class="ng-cloak">
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
         your browser</a> to improve your experience.</p>
     <![endif]-->
-
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-      <main class="mdl-layout__content">
-        <div class="page-content">
-            HOLA!
-        </div>
-      </main>
-    </div>
-
+    
+    <ui-view></ui-view>
 
     <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
     <script>

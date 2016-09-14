@@ -1,0 +1,90 @@
+.authentication {
+
+  $text-white: rgba(255, 255, 255, 0.99);
+  $text-gray: rgba(255, 255, 255, 0.32);
+
+  background: url('../img/background.png') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
+  .form {
+    transform: translateY(-50%) translateX(-50%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
+
+  img.logo {
+    display: block;
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  div.mdl-textfield {
+    display: block;
+    color: $text-white;
+  }
+
+  .mdl-textfield__input {
+    border-bottom: 1px solid $text-gray;
+  }
+
+  .mdl-textfield__label {
+    color: $text-gray;
+  }
+
+  .mdl-textfield__label:after {
+    background-color: #FFFFFF;
+  }
+
+  .mdl-button {
+    width: 100%;
+    margin-top: 40px;
+    height: 48px;
+  }
+
+  .option {
+    display: block;
+    margin: 20px 0;
+    text-align: center;
+
+    .mdl-checkbox__label {
+      color: $text-white;
+      font-size: 14px;
+    }
+  }
+
+  .option.have_read {
+    margin: 10px 0;
+  }
+
+  a.option {
+    color: $text-white;
+    text-decoration: none;
+  }
+
+  a.option.link {
+    text-decoration: none;
+    color: $blue;
+  }
+
+  .mdl-checkbox__box-outline {
+    border: 2px solid rgba(255, 255, 255, 0.54);
+  }
+
+  .mdl-checkbox.is-checked .mdl-checkbox__box-outline {
+    border: 2px solid $blue;
+  }
+
+  .mdl-checkbox.is-checked .mdl-checkbox__tick-outline {
+    background-color: $blue;
+  }
+
+  .mdl-button--raised[disabled][disabled] {
+    background-color: #BDBDBD;
+    color: $text-white;
+    box-shadow: none;
+  }
+}

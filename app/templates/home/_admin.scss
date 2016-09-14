@@ -1,0 +1,97 @@
+.admin {
+  $tabs-height: 49px;
+
+  .head {
+    padding-left: 72px;
+  }
+
+  .mdl-tabs__tab-bar {
+    background: #7B1FA2;
+  }
+
+  .mdl-tabs__tab, .mdl-tabs.is-upgraded .mdl-tabs__tab.is-active {
+    color: $white;
+  }
+
+  .mdl-tabs.is-upgraded .mdl-tabs__tab.is-active:after {
+    background: $white;
+  }
+
+  .users {
+    .list {
+      border-right: 1px solid #E0E0E0;
+      height: calc(100vh - #{$header-height} - #{$tabs-height});
+      overflow-y: auto;
+      background-color: $white;
+
+      .user {
+        padding: 16px 0 16px 24px;
+        min-height: 40px;
+        border-bottom: 1px solid #F5F5F5;
+
+        .profilepicture {
+          display: inline;
+          float: left;
+          margin-right: 24px;
+          width: 40px;
+          border-radius: 50%;
+        }
+
+        div {
+          display: inline;
+        }
+
+        .name {
+          letter-spacing: 0.3px;
+          font-weight: 500;
+          margin-right: 5px;
+          line-height: 40px;
+
+          a {
+            text-decoration: none;
+            color: inherit;
+          }
+        }
+      }
+    }
+  }
+
+  .groups {
+    .list {
+      border-right: 1px solid #E0E0E0;
+      height: calc(100vh - #{$header-height} - #{$tabs-height});
+      overflow-y: auto;
+      background-color: $white;
+
+      .group {
+        padding: 16px 0 41px 24px;
+        min-height: 40px;
+        border-bottom: 1px solid #F5F5F5;
+
+        .name {
+          letter-spacing: 0.3px;
+          font-weight: 500;
+          margin-right: 5px;
+          line-height: 40px;
+
+          span {
+            color: $lightgray;
+            margin-left: 5px;
+          }
+        }
+
+        .members {
+          .member {
+            img {
+              display: inline;
+              float: left;
+              margin-right: 4px;
+              width: 25px;
+              border-radius: 50%;
+            }
+          }
+        }
+      }
+    }
+  }
+}

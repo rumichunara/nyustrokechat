@@ -15,3 +15,7 @@ public/*
 !public/fonts
 .idea
 !public/*.ico
+!public/js/filesaver.min.js
+!public/js/sweetalert.min.js
+!public/css/sweetalert.css
+!public/css/sweetalert-override.css
