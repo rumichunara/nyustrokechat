@@ -43,6 +43,19 @@
             Manage
           </div>
           <div class="list">
+            <div class="search">
+              <form action="" onsubmit="event.preventDefault()">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+                  <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
+                    <i class="material-icons">search</i>
+                  </label>
+                  <div class="mdl-textfield__expandable-holder">
+                    <input class="mdl-textfield__input" type="text" id="search" ng-model="vm.search">
+                    <label class="mdl-textfield__label" for="search-expandable">Expandable Input</label>
+                  </div>
+                </div>
+              </form>
+            </div>
             <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
               <div class="mdl-tabs__tab-bar">
                   <a href="#users-panel" class="mdl-tabs__tab is-active" ng-click="vm.Firebase.redrawMdLite()">Users</a>
@@ -50,7 +63,7 @@
               </div>
               <div class="mdl-tabs__panel is-active users" id="users-panel">
                 <div class="list">
-                  <div ng-repeat="u in vm.Firebase.users" class="user">
+                  <div ng-repeat="(user_id, u) in vm.Firebase.users | searchByName:vm.search" class="user">
                     <img class="profilepicture" ng-src="{{ vm.getProfilePicture(u) }}" />
                     
                     <div class="name">
@@ -73,7 +86,7 @@
               </div>
               <div class="mdl-tabs__panel groups" id="groups-panel">
                 <div class="list">
-                  <div ng-repeat="g in vm.Firebase.groups" class="group">
+                  <div ng-repeat="g in vm.Firebase.groups | searchByName:vm.search" class="group">
                     <div class="name">
                       <a href="" ng-click="vm.selectGroup(g.group_id)">{{ g.name }}</a>
                       <span>{{ g.members_count }}/{{ vm.Firebase.max_members_per_group }}</span>

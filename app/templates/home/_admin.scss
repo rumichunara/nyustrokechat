@@ -1,12 +1,33 @@
 .admin {
   $tabs-height: 49px;
+  $search-height: 67px;
 
   .head {
     padding-left: 72px;
   }
 
+  .list {
+    .search {
+      background-color: #7B1FA2;
+      height: $search-height;
+      padding-left: 20px;
+
+      i.material-icons, input {
+        color: $white;
+      }
+
+      input, .mdl-textfield__label {
+        width: calc(100% - 20px);
+      }
+
+      .mdl-textfield__label:after {
+        background-color: $white;
+      }
+    }
+  }
+
   .mdl-tabs__tab-bar {
-    background: #7B1FA2;
+    background-color: #7B1FA2;
   }
 
   .mdl-tabs__tab, .mdl-tabs.is-upgraded .mdl-tabs__tab.is-active {
@@ -14,13 +35,13 @@
   }
 
   .mdl-tabs.is-upgraded .mdl-tabs__tab.is-active:after {
-    background: $white;
+    background-color: $white;
   }
 
   .users {
     .list {
       border-right: 1px solid #E0E0E0;
-      height: calc(100vh - #{$header-height} - #{$tabs-height});
+      height: calc(100vh - #{$header-height} - #{$tabs-height} -  #{$search-height});
       overflow-y: auto;
       background-color: $white;
       position: relative;

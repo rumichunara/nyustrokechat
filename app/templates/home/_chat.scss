@@ -151,7 +151,7 @@
 
   .messages {
     background-color: #F5F5F5;
-    
+
     .list {
       height: calc(100vh - #{$header-height} - #{$new-height});
       overflow-y: auto;

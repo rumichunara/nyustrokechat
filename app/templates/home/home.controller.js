@@ -19,6 +19,7 @@ function homeController( Firebase, $timeout, $document ) {
   
   vm.my_profile_visible = false;
   vm.editing_profile = false;
+  vm.search = '';
   
   vm.sending_message = false;
   vm.new_message = '';
