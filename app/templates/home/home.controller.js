@@ -1,3 +1,6 @@
+/*eslint max-statements: 1*/
+
+
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
@@ -9,10 +12,10 @@ angular
   .controller( 'HomeController', homeController );
   
   
-homeController.$inject = ['Firebase', '$timeout', '$document'];
+homeController.$inject = ['Firebase', '$timeout', '$document', '$window'];
 
 
-function homeController( Firebase, $timeout, $document ) {
+function homeController( Firebase, $timeout, $document, $window ) {
   
   var vm = this;
   vm.Firebase = Firebase.init();
@@ -20,6 +23,9 @@ function homeController( Firebase, $timeout, $document ) {
   vm.my_profile_visible = false;
   vm.editing_profile = false;
   vm.search = '';
+  
+  vm.mobile_show = 'ChatMessages';
+  vm.is_mobile = ( $window.innerWidth <= 839 );
   
   vm.sending_message = false;
   vm.new_message = '';
@@ -29,6 +35,11 @@ function homeController( Firebase, $timeout, $document ) {
   //Profile stuff
   vm.showMyProfile = function showMyProfile ( b ) {
     vm.my_profile_visible = b;
+    $timeout( function domManipulate() { 
+      if ( !vm.my_profile_visible ) {
+        jQuery( '.mdl-layout__obfuscator, .mdl-layout__drawer' ).removeClass( 'is-visible' );
+      }
+    });
   };
   
   vm.toggleEditProfile = function toggleEditProfile() {
@@ -286,4 +297,19 @@ function homeController( Firebase, $timeout, $document ) {
       swal( 'User invited', 'The person behind that email address has been invited.', 'success' );
     });
   };
+  
+  
+  // Mobile mode
+  vm.mobileShow = function mobileShow ( what ) {
+    vm.mobile_show = what;
+    vm.showMyProfile( false );
+  };
+  
+  vm.isMobileCalculate = function isMobileCalculate () {
+    $timeout( function timeout () {
+      vm.is_mobile = ( $window.innerWidth <= 839 );
+    });
+  };
+  angular.element( $window ).bind( 'load', vm.isMobileCalculate );
+  angular.element( $window ).bind( 'resize', vm.isMobileCalculate );
 }

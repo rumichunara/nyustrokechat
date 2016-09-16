@@ -14,9 +14,13 @@
       }
     }
 
-    .mdl-navigation__link.sign_out {
+    .mdl-navigation__link.separate {
       border-top: 1px solid #DBDBDB;
     }
+  }
+
+  .mdl-layout__drawer-button {
+    line-height: 59px;
   }
 
   main > .mdl-grid {
@@ -71,6 +75,10 @@
       &.is_admin {
         padding-left: 72px;
       }
+    }
+
+    &.is_regular {
+      padding-left: 72px;
     }
   }
 
