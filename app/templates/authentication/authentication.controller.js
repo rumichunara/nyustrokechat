@@ -38,7 +38,10 @@ function authenticationController( $scope, Firebase ) {
     if ( vm.state === 'registering' ) {
       vm.errorReset();
       
-      if ( vm.password === vm.confirm_password ) {
+      if ( vm.full_name === '' ) {
+        swal( 'Please specify a name', 'Please specify your full name.', 'error' );
+      } else if ( vm.password === vm.confirm_password ) {
+        Firebase.setPossibleFullName( vm.full_name );
         Firebase.createUserWithEmailAndPassword( vm.email, vm.password, function callback( error ) {
           if ( error.code === 'auth/weak-password' ) {
             vm.error_password = error.message;

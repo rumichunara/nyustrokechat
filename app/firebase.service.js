@@ -1,12 +1,15 @@
+/*eslint max-nested-callbacks: 1*/
+
+
 angular
   .module( 'app' )
   .factory( 'Firebase', FirebaseService );
 
 
 // Services
-FirebaseService.$inject = ['$rootScope', '$state', '$timeout'];
+FirebaseService.$inject = ['$rootScope', '$state', '$timeout', '$window'];
 
-function FirebaseService( $rootScope, $state, $timeout ) {
+function FirebaseService( $rootScope, $state, $timeout, $window ) {
   var instance = {
     
     user_id: null,
@@ -16,6 +19,8 @@ function FirebaseService( $rootScope, $state, $timeout ) {
     
     max_members_per_group: 6,
     last_message_loaded: -1,
+    possible_full_name: '',
+    user_loaded_times: 0,
     
     colors: ['blue', 'green', 'red', 'yellow', 'brown', 
              'pink', 'indigo', 'lightgreen', 'purple',
@@ -27,12 +32,16 @@ function FirebaseService( $rootScope, $state, $timeout ) {
     // Initialization
     init: function init() {
       instance._onAuthStateChanged();
-      
       return instance;
     },
     
     
     // Authentication stuff
+    setPossibleFullName: function setPossibleFullName ( n ) {
+      instance.possible_full_name = n;
+    },
+    
+    
     _onAuthStateChanged: function onAuthStateChanged() {
       firebase.auth().onAuthStateChanged( function onAuthStateChanged ( user ) {
         $timeout( function timeout() {
@@ -49,31 +58,61 @@ function FirebaseService( $rootScope, $state, $timeout ) {
           }
             
           instance.user_id = user.uid;
-          instance._afterAuthStateChanged();
           
           if ( instance.user_id != null ) {
-            // When we log in we register the listener for our data only once.
-            var timesExecuted = 0;
-            instance.getUserData( instance.user_id, function callback () {
+            // When we sign up we register the listener for our data only once.
+            instance.user_loaded_times = 0;
+            instance.getUserData( instance.user_id, function callback ( userVal ) {              
               // We will only run once the registration of the 
               // listeners of the current group data and admin data
-              if ( timesExecuted === 0 ) {
-                timesExecuted += 1;
-                // We already have this field but not in the users list
-                // we have to wait until the entry exists
-                instance.users[instance.user_id].email = user.email;
-                // Let's get the user's group data
-                instance.getGroupData( instance.users[instance.user_id].group_id, 
-                  instance.loadMessages );
+              if ( instance.user_loaded_times === 0 ) {
+                instance.user_loaded_times += 1;
                 
-                // If its an admin
-                if ( instance.users[instance.user_id].admin ) {
-                  instance.getAllUsers();
-                  instance.getAllGroups();
+                // First, lets check he really had an entry in 'users', if not, then hemust have one in 'invited', if not, out!
+                if ( userVal === null ) {
+                  var possible = $window.btoa( user.email );
+                  var r = firebase.database().ref( `/invited/${possible}` );
+                  r.on( 'value', function valueAssigned( s ) {
+                    $timeout( function timeout() {
+                      var v = s.val();
+                      r.off(); // We dont want more of this thing
+                      
+                      if ( v === null ) {
+                        firebase.auth().currentUser.delete();
+                        swal( 'Not invited', 'You have not been invited.', 'error' );
+                        return;
+                      } else {
+                        // Welcome! Create the entry in users
+                        firebase.database().ref( `/users/${instance.user_id}` ).set({
+                          user_id: instance.user_id,
+                          name: instance.possible_full_name,
+                          email: user.email,
+                          group_id: v.group_id,
+                          joined: new Date().getTime(),
+                        });
+                        instance.addUserToGroup( instance.user_id, v.group_id );
+                        // Lets on purpose load its group data, because its not loaded any other way
+                        instance.getGroupData( v.group_id, instance.loadMessages );
+                      }
+
+                    });
+                  });
+                } else {
+                  // Let's get the user's group data
+                  instance.getGroupData( instance.users[instance.user_id].group_id, 
+                    instance.loadMessages );
+                  
+                  // If its an admin
+                  if ( instance.users[instance.user_id].admin ) {
+                    instance.getAllUsers();
+                    instance.getAllGroups();
+                  }
                 }
               }
             }, true );
           }
+          
+          instance._afterAuthStateChanged();
         });
       });
     },
@@ -193,9 +232,15 @@ function FirebaseService( $rootScope, $state, $timeout ) {
           var v = s.val();
           var oldData = instance.users[userId];
           
-          // Maybe our user is being deleted while we are logged in!
-          if ( userId === instance.user_id && v === null ) {
-            instance.signOut();
+          // Maybe our user is being deleted while we are logged in or entering after registering
+          if ( userId === instance.user_id && v === null && angular.isFunction( onEveryValueChange ) ) {
+            onEveryValueChange( v );
+            return;
+          }
+          
+          // Maybe im an admin and a user is being deleted
+          if ( userId !== instance.user_id && v === null ) {
+            delete instance.users[userId];
             return;
           }
           
@@ -209,13 +254,8 @@ function FirebaseService( $rootScope, $state, $timeout ) {
           instance._checkUpdateUserData( oldData, userId, userColor, v );
 
           
-          // Lets save the moment he joins
-          if ( instance.users[userId].joined === '' ) {
-            firebase.database().ref( `/users/${userId}` ).update({ joined: new Date().getTime() });
-          }
-          
           if ( angular.isFunction( onEveryValueChange ) ) {
-            onEveryValueChange();
+            onEveryValueChange( v );
           }
 
           instance.redrawMdLite();
@@ -330,28 +370,25 @@ function FirebaseService( $rootScope, $state, $timeout ) {
       r.on( 'child_added', function childAdded( s ) {
         $timeout( function timeout() {
           instance.getUserData( s.val().user_id );
-          r.off();
         });
       });
     },
     
     removeUser: function removeUser ( userId ) {
       instance._removeUserFromAnyOtherGroup( userId );
+      var possible = $window.btoa( instance.users[userId].email );
+      firebase.database().ref( `/invited/${possible}` ).remove();
       firebase.database().ref( `/users/${userId}` ).remove();
       delete instance.users[userId];
       // We wont remove the messages, we still want them
     },
     
     addUser: function addUser ( groupId, email ) {
-      var userId = firebase.database().ref( '/users/' ).push().key;
-      var updates = {};
-      updates[`/users/${userId}`] = {
-        user_id: userId,
+      var possible = $window.btoa( email );
+      firebase.database().ref( `/invited/${possible}` ).set({
+        when: new Date().getTime(),
         group_id: groupId,
-        email: email,
-      };
-      return firebase.database().ref().update( updates );
-      
+      });
       // TODO: We need to send an email inviting the person!
     },
     
