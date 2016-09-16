@@ -1,20 +1,26 @@
+/*eslint max-nested-callbacks: 1*/
+
+
 angular
   .module( 'app' )
   .factory( 'Firebase', FirebaseService );
 
 
 // Services
-FirebaseService.$inject = ['$rootScope', '$state', '$timeout'];
+FirebaseService.$inject = ['$rootScope', '$state', '$timeout', '$window'];
 
-function FirebaseService( $rootScope, $state, $timeout ) {
+function FirebaseService( $rootScope, $state, $timeout, $window ) {
   var instance = {
-    
-    whenNewMessage: function dummy(){},
     
     user_id: null,
     users: {},
     groups: {},
+    messages: {},
+    
     max_members_per_group: 6,
+    last_message_loaded: -1,
+    possible_full_name: '',
+    user_loaded_times: 0,
     
     colors: ['blue', 'green', 'red', 'yellow', 'brown', 
              'pink', 'indigo', 'lightgreen', 'purple',
@@ -26,12 +32,16 @@ function FirebaseService( $rootScope, $state, $timeout ) {
     // Initialization
     init: function init() {
       instance._onAuthStateChanged();
-      
       return instance;
     },
     
     
     // Authentication stuff
+    setPossibleFullName: function setPossibleFullName ( n ) {
+      instance.possible_full_name = n;
+    },
+    
+    
     _onAuthStateChanged: function onAuthStateChanged() {
       firebase.auth().onAuthStateChanged( function onAuthStateChanged ( user ) {
         $timeout( function timeout() {
@@ -48,29 +58,61 @@ function FirebaseService( $rootScope, $state, $timeout ) {
           }
             
           instance.user_id = user.uid;
-          instance._afterAuthStateChanged();
           
           if ( instance.user_id != null ) {
-            firebase.database()
-              .ref( `/users/${instance.user_id}` )
-              .update({ last_active: new Date().getTime() });          
+            // When we sign up we register the listener for our data only once.
+            instance.user_loaded_times = 0;
+            instance.getUserData( instance.user_id, function callback ( userVal ) {              
+              // We will only run once the registration of the 
+              // listeners of the current group data and admin data
+              if ( instance.user_loaded_times === 0 ) {
+                instance.user_loaded_times += 1;
+                
+                // First, lets check he really had an entry in 'users', if not, then hemust have one in 'invited', if not, out!
+                if ( userVal === null ) {
+                  var possible = $window.btoa( user.email );
+                  var r = firebase.database().ref( `/invited/${possible}` );
+                  r.on( 'value', function valueAssigned( s ) {
+                    $timeout( function timeout() {
+                      var v = s.val();
+                      r.off(); // We dont want more of this thing
+                      
+                      if ( v === null ) {
+                        firebase.auth().currentUser.delete();
+                        swal( 'Not invited', 'You have not been invited.', 'error' );
+                        return;
+                      } else {
+                        // Welcome! Create the entry in users
+                        firebase.database().ref( `/users/${instance.user_id}` ).set({
+                          user_id: instance.user_id,
+                          name: instance.possible_full_name,
+                          email: user.email,
+                          group_id: v.group_id,
+                          joined: new Date().getTime(),
+                        });
+                        instance.addUserToGroup( instance.user_id, v.group_id );
+                        // Lets on purpose load its group data, because its not loaded any other way
+                        instance.getGroupData( v.group_id, instance.loadMessages );
+                      }
 
-            // Lets get the rest of the info of the user, then well load the messages
-            // (because we need to know the group he belongs to)
-            instance.getUserData( instance.user_id, function callback () {
-              // We already have this field but not in the users list
-              // we have to wait until the entry exists
-              instance.users[instance.user_id].email = user.email;
-              // Let's get the user's group data
-              instance.getGroupData( instance.users[instance.user_id].group_id, instance.loadMessages );
-              
-              // If its an admin
-              if ( instance.users[instance.user_id].admin ) {
-                instance.getAllUsers();
-                instance.getAllGroups();
+                    });
+                  });
+                } else {
+                  // Let's get the user's group data
+                  instance.getGroupData( instance.users[instance.user_id].group_id, 
+                    instance.loadMessages );
+                  
+                  // If its an admin
+                  if ( instance.users[instance.user_id].admin ) {
+                    instance.getAllUsers();
+                    instance.getAllGroups();
+                  }
+                }
               }
-            });
+            }, true );
           }
+          
+          instance._afterAuthStateChanged();
         });
       });
     },
@@ -81,9 +123,7 @@ function FirebaseService( $rootScope, $state, $timeout ) {
       } else {
         $state.go( 'home' );
       }
-      $timeout( function upgradeAllRegistered() {
-        componentHandler.upgradeAllRegistered();
-      });
+      instance.redrawMdLite();
     },
     
     createUserWithEmailAndPassword: function create( email, password, callback ) {
@@ -131,57 +171,95 @@ function FirebaseService( $rootScope, $state, $timeout ) {
     
     
     // Profile stuff
-    _loadUserData: function _loadUserData ( userId, v ) {
-      var attributes = ['user_id', 'name', 'email', 'group_id', 'joined'];
-      angular.forEach( attributes, function forEach ( d ) {
-        instance.users[userId][d] = ( angular.isDefined( v[d]) ) ? v[d] : '';
-      });
-      instance.users[userId]['admin'] = ( angular.isDefined( v['admin']) ) ? v['admin'] : false;
+    _checkUpdateUserData: function _checkUpdateUserData ( oldData, userId, userColor, newValue ) {
+      if ( angular.isDefined( oldData ) ) {
+        // If it is an update then we have a couple of values we need to keep
+        instance.users[userId].color = oldData.color;
+        
+        // Maybe we need to calculate the image url again
+        if ( oldData.profile_picture_url !== '' 
+            && oldData.profile_picture !== instance.users[userId].profile_picture ) {
+          instance.getUrlOfImage( oldData.profile_picture, function onGetUrlOfImage( r ) { 
+            instance.users[userId].profile_picture_url = r;
+          });
+        } else {
+          instance.users[userId].profile_picture_url = oldData.profile_picture_url;
+        }
+        
+        // If I am changing then maybe I am changing of selected group
+        if ( userId === instance.user_id && oldData.group_id !== newValue.group_id ) {
+          // We dont need anymore the old group messages
+          instance.messages[oldData.group_id] = []; 
+          // We will have to listen for messages again
+          instance.loadMessages();
+        }
+      } else {
+        // Its the first time we are loading its data
+        instance.users[userId].color = userColor;
+        
+        // Lets load the correct url of its profile picture
+        if ( angular.isDefined( instance.users[userId].profile_picture ) 
+          && instance.users[userId].profile_picture !== '' ) {
+          instance.getUrlOfImage( instance.users[userId].profile_picture, 
+          function onGetUrlOfImage( r ) { 
+            instance.users[userId].profile_picture_url = r;
+          });
+        } else {
+          instance.users[userId].profile_picture_url = '';
+        }
+      }
     },
     
-    getUserData: function getUserData( userId, onGet ) {
+    
+    getUserData: function getUserData( userId, onEveryValueChange ) {
       
-      // If we already have the user data then we dont search for it
+      // If we already got user data and the listener then we dont do it again
       if ( angular.isDefined( instance.users[userId]) ) {
-        if ( angular.isFunction( onGet ) ) {
-          onGet();
-        }
         return;
       }
-      
-      // If that is not the case we'll search for it
-      instance.users[userId] = {};
       
       // Let's assign a color for the user, if there are no more colors available then we start again
       instance.last_color_used += 1;
       if ( instance.last_color_used >= instance.colors.length ) {
         instance.last_color_used = 0;
       }
-      instance.users[userId].color = instance.colors[instance.last_color_used];
+      var userColor = instance.colors[instance.last_color_used];
       
-      // Let's request all the data
+      // Let's register the listener for the user data
       var r = firebase.database().ref( `/users/${userId}` );
       r.on( 'value', function valueAssigned( s ) {
         $timeout( function timeout() {
           var v = s.val();
+          var oldData = instance.users[userId];
           
-          instance._loadUserData( userId, v );
-          
-          if ( instance.users[userId].joined === '' ) {
-            firebase.database().ref( `/users/${userId}` ).update({ joined: new Date().getTime() });
+          // Maybe our user is being deleted while we are logged in or entering after registering
+          if ( userId === instance.user_id && v === null && angular.isFunction( onEveryValueChange ) ) {
+            onEveryValueChange( v );
+            return;
           }
           
-          if ( angular.isFunction( onGet ) ) {
-            onGet();
+          // Maybe im an admin and a user is being deleted
+          if ( userId !== instance.user_id && v === null ) {
+            delete instance.users[userId];
+            return;
           }
           
-          // Let'g get the profile URL if it is needed
-          var url = ( angular.isDefined( v.profile_picture ) ) ? v.profile_picture : '';
-          instance.getUrlOfImage( url, function onGetUrlOfImage( r ) { 
-            instance.users[userId].profile_picture = r;
-          });
+          instance.users[userId] = v;
           
-          r.off(); // I dont want to excecute this every time user data changes
+          // Lets make us sure of this
+          if ( angular.isUndefined( instance.users[userId].group_id ) ) {
+            instance.users[userId].group_id = null;
+          }
+          
+          instance._checkUpdateUserData( oldData, userId, userColor, v );
+
+          
+          if ( angular.isFunction( onEveryValueChange ) ) {
+            onEveryValueChange( v );
+          }
+
+          instance.redrawMdLite();
+          // We are not doing "r.off();" because we want to update every time the user data changes
         });
       });
     },
@@ -210,44 +288,63 @@ function FirebaseService( $rootScope, $state, $timeout ) {
           var url = firebase.storage().ref( uploadTask.snapshot.metadata.fullPath ).toString();
           firebase.database().ref( `/users/${instance.user_id}` ).update({profile_picture: url});
           instance.getUrlOfImage( url, function onGetUrlOfImage( r ) { 
-            instance.users[instance.user_id].profile_picture = r;
+            instance.users[instance.user_id].profile_picture_url = r;
           });
         });
       }
     },
     
-
-    // Message stuff
-    assignwhenNewMessage: function assignwhenNewMessage( d ) {
-      instance.whenNewMessage = d;
+    _updateLastActive: function _updateLastActive() {
+      // When a message is loaded we save the "last active" timestamp
+      instance.users[instance.user_id].last_active = new Date().getTime();
+      firebase.database()
+        .ref( `/users/${instance.user_id}` )
+        .update({ last_active: instance.users[instance.user_id].last_active });
     },
     
+
+    // Message stuff
     loadMessages: function loadMessages() {
-      if ( instance.users[instance.user_id].group_id !== '' ) {
+      instance.last_message_loaded = -1; // Signal for forcing scrolling down
+      instance._onMessageLoaded();
+      if ( instance.users[instance.user_id].group_id !== null ) {
+        instance.messages[instance.users[instance.user_id].group_id] = [];
         var mr = firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` );
         mr.off();
         mr.on( 'child_added', instance._addMessage );
-        mr.on( 'child_changed', instance._addMessage );
       }
     },
     
-    _addMessage: function addMessage( v ) {
+    _onMessageLoaded: function _onMessageLoaded () { 
+      // Dummy, to be set
+    },
+    
+    addOnMessageLoaded: function addOnMessageLoaded ( a ) {
+      if ( angular.isFunction( a ) ) {
+        instance._onMessageLoaded = a;
+      }
+    },
+    
+    setLastMessageLoaded: function setLastMessageLoaded( t ) {
+      instance.last_message_loaded = t;
+    },
+    
+    _addMessage: function _addMessage( v ) {
       $timeout( function timeout() {
         var d = v.val();
-        // Let´s get the extra data of the message
+        instance.last_message_loaded = new Date().getTime();
+        instance._onMessageLoaded();
         instance.getUserData( d.user_id );
-        instance.whenNewMessage( d );
-        
-        // When a message is loaded we save the "last active" timestamp
-        instance.users[instance.user_id].last_active = new Date().getTime();
-        firebase.database()
-          .ref( `/users/${instance.user_id}` )
-          .update({ last_active: instance.users[instance.user_id].last_active });
+        if ( angular.isUndefined( instance.messages[instance.users[instance.user_id].group_id]) ) {
+          instance.messages[instance.users[instance.user_id].group_id] = [];
+        }
+        instance.messages[instance.users[instance.user_id].group_id].push( d );
       });
     },
     
     sendMessage: function sendMessage( message, callbackSent ) {
-      if ( message !== '' && instance.user_id !== null ) {
+      if ( message !== '' && instance.user_id !== null 
+        && instance.users[instance.user_id].group_id !== null ) {
         firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` ).push({
           user_id: instance.user_id,
           text: message,
@@ -255,6 +352,7 @@ function FirebaseService( $rootScope, $state, $timeout ) {
         }).then( function onMessageGet() {
           $timeout( function timeout() {
             callbackSent();
+            instance._updateLastActive();
           });
         }).catch( function onMessageError() {
           $timeout( function timeout() {
@@ -265,19 +363,40 @@ function FirebaseService( $rootScope, $state, $timeout ) {
     },
     
     
-    // Groups stuff
-    _loadGroupData: function _loadGroupData ( groupId, v ) {
-      var attributes = ['group_id', 'name'];
-      angular.forEach( attributes, function forEach ( d ) {
-        instance.groups[groupId][d] = ( angular.isDefined( v ) && angular.isDefined( v[d]) ) ? v[d] : '';
+    // User stuff
+    
+    getAllUsers: function getAllUsers() {
+      var r = firebase.database().ref( '/users/' );
+      r.on( 'child_added', function childAdded( s ) {
+        $timeout( function timeout() {
+          instance.getUserData( s.val().user_id );
+        });
       });
-      instance.groups[groupId]['members'] = ( angular.isDefined( v ) 
-        && angular.isDefined( v['members']) ) ? v['members'] : {};
     },
     
+    removeUser: function removeUser ( userId ) {
+      instance._removeUserFromAnyOtherGroup( userId );
+      var possible = $window.btoa( instance.users[userId].email );
+      firebase.database().ref( `/invited/${possible}` ).remove();
+      firebase.database().ref( `/users/${userId}` ).remove();
+      delete instance.users[userId];
+      // We wont remove the messages, we still want them
+    },
+    
+    addUser: function addUser ( groupId, email ) {
+      var possible = $window.btoa( email );
+      firebase.database().ref( `/invited/${possible}` ).set({
+        when: new Date().getTime(),
+        group_id: groupId,
+      });
+      // TODO: We need to send an email inviting the person!
+    },
+    
+    
+    // Groups stuff
     getGroupData: function getGroupData( groupId, onGet ) {
       
-      if ( angular.isDefined( instance.groups[groupId]) ) {
+      if ( groupId === null || angular.isDefined( instance.groups[groupId]) ) {
         return;
       }
       
@@ -285,12 +404,22 @@ function FirebaseService( $rootScope, $state, $timeout ) {
             
       // Let's request all the data
       var r = firebase.database().ref( `/groups/${groupId}` );
-      r.on( 'value', function onGetValue( s ) {
+      r.on( 'value', function onValueUpdated( s ) {
+        // This function gets called every time de value is added, changes or is deleted.
         $timeout( function timeout() {
           var v = s.val();
           
+          if ( v === null ) { // deleted
+            delete instance.groups[groupId];
+            if ( angular.isDefined( instance.messages[groupId]) ) {
+              delete instance.messages[groupId];
+            }
+            instance.redrawMdLite();
+            return;
+          }
+          
           // From its data let's get what interests us
-          instance._loadGroupData( groupId, v );
+          instance.groups[groupId] = v;
           instance.groups[groupId].members_count = 0;
           
           angular.forEach( instance.groups[groupId].members, function forEachGroup( userId ) {
@@ -302,32 +431,100 @@ function FirebaseService( $rootScope, $state, $timeout ) {
             onGet();
           }
           
-          r.off();          
+          instance.redrawMdLite();
+          // We are not doing "r.off();" because we want to update every time a group changed
         });
       });
     },
     
-    
-    // Admin stuff
-    getAllUsers: function getAllUsers() {
-      var r = firebase.database().ref( '/users/' );
-      r.on( 'child_added', function childAdded( s ) {
-        $timeout( function timeout() {
-          instance.getUserData( s.val().user_id );
-          r.off();
-        });
-      });
+    addGroup: function addGroup ( name ) {
+      var groupId = firebase.database().ref( '/groups/' ).push().key;      
+      var updates = {};
+      updates[`/groups/${groupId}`] = {
+        group_id: groupId,
+        members: [],
+        name: name,
+      };
+      return firebase.database().ref().update( updates );
     },
     
+    editGroupName( groupId, inputValue ) {
+      firebase.database().ref( `/groups/${groupId}` ).update({ name: inputValue });
+    },
+    
+    removeGroupLocally: function removeGroupLocally ( groupId ) {
+      delete instance.groups[groupId];
+    },
+    
+    selectGroup: function selectGroup ( groupId ) {
+      firebase.database().ref( `/users/${instance.user_id}` ).update({ group_id: groupId });
+    },
+    
+    deleteGroup: function deleteGroup ( groupId ) {
+      // Delete the group and its messages
+      // Do not assign the admin to any group
+      // Do not assign a group to the members
+      angular.forEach( instance.groups[groupId].members, function forEach ( userId ) {
+        firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+      });
+      firebase.database().ref( `/users/${instance.user_id}` ).update({ group_id: null });
+      firebase.database().ref( `/groups/${groupId}` ).remove();
+      firebase.database().ref( `/messages/${groupId}` ).remove();
+    },
     
     getAllGroups: function getAllGroups() {
       var r = firebase.database().ref( '/groups/' );
       r.on( 'child_added', function childAdded( s ) {
         $timeout( function timeout() {
           instance.getGroupData( s.val().group_id );
-          r.off();
+          // We are not doing "r.off();" because we want to update every time a group is added or deleted
         });
       });
+      r.on( 'child_removed', function childAdded( s ) {
+        $timeout( function timeout() {
+          instance.removeGroupLocally( s.val().group_id );
+          // We are not doing "r.off();" because we want to update every time a group is added or deleted
+        });
+      });
+    },
+    
+    _removeUserFromAnyOtherGroup: function _removeUserFromAnyOtherGroup ( userId ) {
+      angular.forEach( instance.groups, function forEach ( group, groupId ) {
+        var newMembers = [];
+        var foundInIt = false;
+        if ( angular.isUndefined( group.members ) ) {
+          return;
+        }
+        angular.forEach( group.members, function forEach2 ( iUserId ) {
+          if ( iUserId === userId ) {
+            foundInIt = true;
+          } else {
+            newMembers.push( iUserId );
+          }
+        });
+        if ( foundInIt ) {
+          firebase.database().ref( `/groups/${groupId}/members` ).set( newMembers );
+        }
+      });      
+    },
+    
+    addUserToGroup: function addUserToGroup ( userId, groupId ) {
+      if ( groupId === null ) {
+        return;
+      }
+      instance._removeUserFromAnyOtherGroup( userId );
+      firebase.database().ref( `/users/${userId}` ).update({ group_id: groupId });
+      firebase.database().ref( `/groups/${groupId}/members` ).push( userId );
+    },
+    
+    removeUserFromGroup: function removeUserFromGroup ( userId ) {
+      instance._removeUserFromAnyOtherGroup( userId );
+      firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+    },
+    
+    // UI Stuff
+    redrawMdLite: function redrawMdLite() {
+      $timeout( componentHandler.upgradeAllRegistered ); // Let's redraw all mdlite components
     },
   };
   return instance;

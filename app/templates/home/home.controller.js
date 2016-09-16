@@ -1,3 +1,6 @@
+/*eslint max-statements: 1*/
+
+
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
@@ -9,39 +12,34 @@ angular
   .controller( 'HomeController', homeController );
   
   
-homeController.$inject = ['Firebase', '$timeout', '$document'];
+homeController.$inject = ['Firebase', '$timeout', '$document', '$window'];
 
 
-function homeController( Firebase, $timeout, $document ) {
+function homeController( Firebase, $timeout, $document, $window ) {
   
   var vm = this;
   vm.Firebase = Firebase.init();
   
-  Firebase.assignwhenNewMessage( function whenNewMessage( m ) {
-    vm.messages.push( m );
-
-    // Workaround for scrolling to the bottom on start but never again
-    $timeout( function scrollToBottomOnStart () {
-      var t = new Date().getTime();
-      if ( vm.last_message_loaded === -1 || t - vm.last_message_loaded < 100 ) {
-        vm.last_message_loaded = t;
-        jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).prop( 'scrollHeight' ) );
-      }
-    }, 0 );
-  });
-  
   vm.my_profile_visible = false;
   vm.editing_profile = false;
+  vm.search = '';
+  
+  vm.mobile_show = 'ChatMessages';
+  vm.is_mobile = ( $window.innerWidth <= 839 );
   
   vm.sending_message = false;
   vm.new_message = '';
-  vm.messages = [];
   vm.last_message_loaded = -1;
 
   
   //Profile stuff
   vm.showMyProfile = function showMyProfile ( b ) {
     vm.my_profile_visible = b;
+    $timeout( function domManipulate() { 
+      if ( !vm.my_profile_visible ) {
+        jQuery( '.mdl-layout__obfuscator, .mdl-layout__drawer' ).removeClass( 'is-visible' );
+      }
+    });
   };
   
   vm.toggleEditProfile = function toggleEditProfile() {
@@ -69,10 +67,10 @@ function homeController( Firebase, $timeout, $document ) {
   
   vm.getProfilePicture = function getProfilePicture ( u ) {
     if ( u === null || angular.isUndefined( u ) 
-        || angular.isUndefined( u.profile_picture ) || u.profile_picture === '' ) {
+        || angular.isUndefined( u.profile_picture_url ) || u.profile_picture_url === '' ) {
       return '/img/avatar.png';
     } else { 
-      return u.profile_picture;
+      return u.profile_picture_url;
     }
   };
   
@@ -102,6 +100,17 @@ function homeController( Firebase, $timeout, $document ) {
   
   // Chat stuff
   
+  // Workaround for scrolling to bottom when group is loaded but not at any other moment
+  Firebase.addOnMessageLoaded( function callback () {
+    $timeout( function scrollToBottomOnStart () {
+      var t = new Date().getTime();
+      if ( Firebase.last_message_loaded === -1 || t - Firebase.last_message_loaded < 100 ) {
+        Firebase.setLastMessageLoaded( t );
+        jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).prop( 'scrollHeight' ) );
+      }
+    }, 0 );
+  });
+  
   vm.sendMessage = function sendMessage ( m ) {
     vm.new_message = ''; // For not losing focus when pressing enter
     vm.sending_message = true;
@@ -122,12 +131,17 @@ function homeController( Firebase, $timeout, $document ) {
   
   vm.downloadLog = function downloadLog () {
     var cl = '';
+    
+    if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
+      return;
+    }
 
-    angular.forEach( vm.messages, function forEach ( d ) {
+    var groupId = vm.Firebase.users[vm.Firebase.user_id].group_id;
+    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
       var t = new Date( d.when );
       var strDate = date( 'Y-m-d H:i:s', t );
       var usrName = Firebase.users[d.user_id].name;
-      var msg = Firebase.users[d.user_id].message;
+      var msg = d.text;
 
       cl = `${cl}<tr><td>${strDate}</td><td>${usrName}</td><td>${msg}</td></tr>`;
     });
@@ -149,4 +163,153 @@ function homeController( Firebase, $timeout, $document ) {
     
     fileSaver.saveAs( new Blob([c] , {type: 'application/vnd.ms-excel;charset=UTF-8'}), 'log' );
   };
+  
+  
+  // Admin stuff
+  vm.addGroup = function addGroup() {
+    swal({
+      title: 'Add a group',   
+      text: 'Add a new group with the following name',   
+      type: 'input',   
+      showCancelButton: true,   
+      closeOnConfirm: true,   
+      inputPlaceholder: 'Group name', 
+    }, 
+    function response ( inputValue ) {
+      if ( inputValue === false ) {
+        return false;
+      }
+      if ( inputValue === '' ) {
+        swal.showInputError( 'You need to write a name' );     
+        return false;
+      }
+      
+      Firebase.addGroup( inputValue );
+    });
+  };
+  
+  
+  vm.selectGroup = function selectGroup( groupId ) {
+    Firebase.selectGroup( groupId );
+  };
+  
+  
+  vm.renameGroup = function renameGroup() {
+    swal({
+      title: 'Edit group name',   
+      text: 'Rename the group to the following',   
+      type: 'input',   
+      showCancelButton: true,   
+      closeOnConfirm: true,   
+      inputPlaceholder: 'Group name',
+      inputValue: Firebase.groups[Firebase.users[Firebase.user_id].group_id].name,
+    }, 
+    function response( inputValue ) {
+      if ( inputValue === false ) {
+        return false;
+      }
+      if ( inputValue === '' ) {
+        swal.showInputError( 'You need to write a name' );     
+        return false;
+      }
+      
+      Firebase.editGroupName( Firebase.users[Firebase.user_id].group_id, inputValue );
+    });
+  };
+  
+  
+  vm.deleteGroup = function deleteGroup() {
+    swal({
+      title: 'Delete group',   
+      text: 'Are you sure you want to delete the group? This action can\'t be undone',   
+      type: 'warning',   
+      showCancelButton: true,   
+      closeOnConfirm: true,
+      confirmButtonText: 'Yes, delete it',
+    }, 
+    function response () {
+      Firebase.deleteGroup( Firebase.users[Firebase.user_id].group_id );
+    });
+  };
+  
+  
+  vm.addUserToCurrentGroup = function addUserToCurrentGroup( userId ) {
+    Firebase.addUserToGroup( userId, Firebase.users[Firebase.user_id].group_id );
+  };
+  
+  
+  vm.removeUserFromCurrentGroup = function removeUserFromCurrentGroup( userId ) {
+    Firebase.removeUserFromGroup( userId );
+  };
+  
+  
+  vm.removeUser = function removeUser( userId ) {
+    swal({
+      title: 'Delete user',   
+      text: 'Are you sure you want to delete the user? This action can\'t be undone',   
+      type: 'warning',   
+      showCancelButton: true,   
+      closeOnConfirm: true,
+      confirmButtonText: 'Yes, delete it',
+    }, 
+    function response () {
+      Firebase.removeUser( userId );
+    });
+  };
+  
+  
+  vm.validEmail = function validEmail ( e ) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test( e );
+  };
+  
+  
+  vm.addUser = function addUser () {
+    if ( Firebase.users[Firebase.user_id].group_id === null ) {
+      swal( 'Select a group', 'Please select a group first.', 'error' );
+      return;
+    }
+    
+    var groupName = Firebase.groups[Firebase.users[Firebase.user_id].group_id].name;
+    swal({
+      title: `Invite a user to the group "${groupName}"`,   
+      text: 'Please write the email address of the person you want to invite',   
+      type: 'input',   
+      showCancelButton: true,   
+      closeOnConfirm: false,   
+      inputPlaceholder: 'Email addres',
+    }, 
+    function response ( inputValue ) {
+      if ( inputValue === false ) {
+        return false;
+      }
+      if ( inputValue === '' ) {
+        swal.showInputError( 'You need to write an email address' );     
+        return false;
+      }
+      
+      if ( !vm.validEmail( inputValue ) ) {
+        swal.showInputError( 'You need to write a valid email address' ); 
+        return false;
+      }
+      
+      Firebase.addUser( Firebase.users[Firebase.user_id].group_id, inputValue );
+      swal( 'User invited', 'The person behind that email address has been invited.', 'success' );
+    });
+  };
+  
+  
+  // Mobile mode
+  vm.mobileShow = function mobileShow ( what ) {
+    vm.mobile_show = what;
+    vm.showMyProfile( false );
+  };
+  
+  vm.isMobileCalculate = function isMobileCalculate () {
+    $timeout( function timeout () {
+      vm.is_mobile = ( $window.innerWidth <= 839 );
+    });
+  };
+  angular.element( $window ).bind( 'load', vm.isMobileCalculate );
+  angular.element( $window ).bind( 'resize', vm.isMobileCalculate );
 }

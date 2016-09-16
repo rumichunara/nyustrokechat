@@ -14,9 +14,13 @@
       }
     }
 
-    .mdl-navigation__link.sign_out {
+    .mdl-navigation__link.separate {
       border-top: 1px solid #DBDBDB;
     }
+  }
+
+  .mdl-layout__drawer-button {
+    line-height: 59px;
   }
 
   main > .mdl-grid {
@@ -61,7 +65,7 @@
     box-sizing: border-box;
     position: relative;
 
-    .menu-lower-right {
+    .menu-group {
       position: absolute;
       right: 20px;
       top: 16px;
@@ -71,6 +75,10 @@
       &.is_admin {
         padding-left: 72px;
       }
+    }
+
+    &.is_regular {
+      padding-left: 72px;
     }
   }
 
@@ -103,6 +111,7 @@
       .member {
         padding: 16px 0 16px 24px;
         min-height: 40px;
+        position: relative;
 
         &.b-0, &.b-2 {
           background-color: $white;
@@ -139,11 +148,18 @@
             color: inherit;
           }
         }
+
+        .menu-more {
+          position: absolute;
+          right: 10px;
+        }
       }
     }
   }
 
   .messages {
+    background-color: #F5F5F5;
+
     .list {
       height: calc(100vh - #{$header-height} - #{$new-height});
       overflow-y: auto;
