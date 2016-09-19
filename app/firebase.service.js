@@ -217,7 +217,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       if ( angular.isDefined( instance.users[userId]) ) {
         
         if ( angular.isFunction( onEveryValueChange ) ) {
-          onEveryValueChange( instance.users[userId] );
+          onEveryValueChange( instance.users[userId]);
         }
         return;
       }
