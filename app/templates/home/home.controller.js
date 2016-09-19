@@ -138,17 +138,17 @@ function homeController( Firebase, $timeout, $document, $window ) {
     var escapeString = function escapeString ( s ) {
       var innerValue = ( s === null ) ? '' : s.toString();
       var result = innerValue.replace( /"/g, '""' );
-      if (result.search( /("|,|\n)/g) >= 0 ) {
-        result = '"' + result + '"';
+      if ( result.search( /("|,|\n)/g ) >= 0 ) {
+        result = `"${result}"`;
       }
       return result;
-    }
+    };
             
     var lineArray = [];
-    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d, i ) {
-      lineArray.push(`${date( 'Y-m-d H:i:s', new Date( d.when ) )},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}`);
+    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
+      lineArray.push( `${date( 'Y-m-d H:i:s', new Date( d.when ) )},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
     });
-    var csvContent = lineArray.join( "\n" );
+    var csvContent = lineArray.join( '\n' );
 
     fileSaver.saveAs( new Blob([csvContent] , {type: 'text/csv;charset=utf-8;'}), 'log.csv' );
   };
