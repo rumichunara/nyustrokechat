@@ -130,38 +130,27 @@ function homeController( Firebase, $timeout, $document, $window ) {
   };
   
   vm.downloadLog = function downloadLog () {
-    var cl = '';
-    
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
     }
 
     var groupId = vm.Firebase.users[vm.Firebase.user_id].group_id;
-    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
-      var t = new Date( d.when );
-      var strDate = date( 'Y-m-d H:i:s', t );
-      var usrName = Firebase.users[d.user_id].name;
-      var msg = d.text;
-
-      cl = `${cl}<tr><td>${strDate}</td><td>${usrName}</td><td>${msg}</td></tr>`;
+    var escapeString = function escapeString ( s ) {
+      var innerValue = ( s === null ) ? '' : s.toString();
+      var result = innerValue.replace( /"/g, '""' );
+      if (result.search( /("|,|\n)/g) >= 0 ) {
+        result = '"' + result + '"';
+      }
+      return result;
+    }
+            
+    var lineArray = [];
+    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d, i ) {
+      lineArray.push(`${date( 'Y-m-d H:i:s', new Date( d.when ) )},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}`);
     });
-    
-    var c = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" 
-        xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
-          <x:Name>Log</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-          </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-        </head>
-        <body>
-          <table>${cl}</table>
-        </body>
-      </html>
-    `;
-    
-    fileSaver.saveAs( new Blob([c] , {type: 'application/vnd.ms-excel;charset=UTF-8'}), 'log' );
+    var csvContent = lineArray.join( "\n" );
+
+    fileSaver.saveAs( new Blob([csvContent] , {type: 'text/csv;charset=utf-8;'}), 'log.csv' );
   };
   
   
