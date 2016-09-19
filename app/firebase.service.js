@@ -215,6 +215,10 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       
       // If we already got user data and the listener then we dont do it again
       if ( angular.isDefined( instance.users[userId]) ) {
+        
+        if ( angular.isFunction( onEveryValueChange ) ) {
+          onEveryValueChange( instance.users[userId] );
+        }
         return;
       }
       
