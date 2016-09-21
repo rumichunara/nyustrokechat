@@ -4,6 +4,7 @@
     text-align: center;
     color: $white;
     padding: 22px 10px;
+    min-height: 200px;
 
     .background_picture {
       $blur: 2px;
@@ -39,11 +40,15 @@
     .profile_picture {
       position: relative;
 
-      img {
+      .picture_container {
         display: block;
         margin: 20px auto;
         width: 96px;
         border-radius: 50%;
+        height: 96px;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
       }
 
       .edit {

@@ -4,8 +4,6 @@
     <!-- Profile -->
     <div class="mdl-layout__drawer {{ (vm.my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (vm.my_profile_visible) ? 'true' : 'false' }}">
       <div class="presentation">
-        <img class="background_picture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[Firebase.user_id]) }}" />
-        
         <div class="title">
           MY PROFILE
           <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.toggleEditProfile()">
@@ -14,7 +12,9 @@
         </div>
         
         <div class="profile_picture">
-          <img class="profile_picture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}" />
+          <div class="picture_container" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}')">
+          </div>
+            
           <div ng-show="vm.editing_profile" class="edit"><a href="" ng-click="vm.selectProfilePicture()">edit</a></div>
           
           <form action="">
@@ -72,7 +72,7 @@
               <div class="mdl-tabs__panel is-active users" id="users-panel">
                 <div class="list">
                   <div ng-repeat="(user_id, u) in vm.Firebase.users | searchByName:vm.search" class="user">
-                    <img class="profilepicture" ng-src="{{ vm.getProfilePicture(u) }}" />
+                    <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(u) }}')"></div>
                     
                     <div class="name">
                       <a href="" ng-click="vm.showProfile(u.user_id)">{{ u.name }}</a>
@@ -101,7 +101,7 @@
                     </div>
                     <div class="members">
                       <div class="member" ng-repeat="user_id in g.members">
-                        <img ng-src="{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}" />
+                        <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}')"></div>
                       </div>
                     </div>
                   </div>
@@ -131,7 +131,7 @@
           </div>
           <div class="list" id="messages_list">
             <div ng-repeat="m in vm.Firebase.messages[vm.Firebase.users[vm.Firebase.user_id].group_id]" class="message b-{{ $index % 4 }}">
-              <img class="profilepicture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[m.user_id]) }}" />
+              <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[m.user_id]) }}')"></div>
               <div class="name c-{{ vm.Firebase.users[m.user_id].color }}">
                 <a href="" ng-click="vm.showProfile(m.user_id)">{{ vm.Firebase.users[m.user_id].name }}</a>
               </div>
@@ -158,7 +158,7 @@
           </div>
           <div class="list">
             <div ng-repeat="user_id in vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].members" class="member b-{{ $index % 4 }}">
-              <img class="profilepicture" ng-src="{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}" />
+              <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}')"></div>
               <div class="name c-{{ vm.Firebase.users[user_id].color }}">
                 <a href="" ng-click="vm.showProfile(user_id)">{{ vm.Firebase.users[user_id].name }}</a>
               </div>
