@@ -36,6 +36,8 @@
         <a class="mdl-navigation__link" href=""><i class="material-icons">lock</i> Privacy Policy</a>
         <a class="mdl-navigation__link" href=""><i class="material-icons">description</i> Terms of Use</a>
 
+        <a class="mdl-navigation__link separate" href="" ng-click="vm.broadcastMessage()" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin"><i class="material-icons">send</i> Broadcast message</a>
+        
         <a class="mdl-navigation__link separate" href="" ng-click="vm.Firebase.signOut()"><i class="material-icons">power_settings_new</i> Sign out</a>
       </nav>
     </div>
@@ -190,6 +192,25 @@
       <div class="mdl-dialog__actions">
         <button type="button" class="mdl-button" ng-click="vm.downloadLogFile()">Download</button>
         <button type="button" class="mdl-button close" ng-click="vm.dontDownloadLog()">Close</button>
+      </div>
+    </dialog>
+    
+    <!-- Broadcast message !-->
+    <dialog class="mdl-dialog broadcast-message">
+      <div class="mdl-dialog__content">
+        <p>
+          Send a message to every group.
+        </p>
+        <form action="" onsubmit="event.preventDefault()">
+          <div class="mdl-textfield mdl-js-textfield">
+            <textarea class="mdl-textfield__input" type="text" rows= "3" id="broadcastmessage" ng-model="vm.new_broadcast_message" ></textarea>
+            <label class="mdl-textfield__label" for="broadcastmessage">Type here...</label>
+          </div>
+        </form>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button" ng-click="vm.sendBroadcastMessage()">Send</button>
+        <button type="button" class="mdl-button close" ng-click="vm.dontBroadcastMessage()">Cancel</button>
       </div>
     </dialog>
     

@@ -368,6 +368,19 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       }
     },
     
+    broadastMessage: function ( message ) {
+      var when = new Date().getTime();
+      if ( message !== '' && instance.user_id !== null ) {
+        angular.forEach( instance.groups, function forEach ( group, groupId ) {
+          firebase.database().ref( `/messages/${groupId}` ).push({
+            user_id: instance.user_id,
+            text: message,
+            when: when,
+          });
+        });
+      }
+    },
+    
     
     // User stuff
     

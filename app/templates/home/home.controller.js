@@ -34,6 +34,8 @@ function homeController( Firebase, $timeout, $document, $window ) {
   
   vm.from = date('Y-m-d');
   vm.to = date('Y-m-d');
+  
+  vm.new_broadcast_message = '';
 
   
   //Profile stuff
@@ -321,4 +323,29 @@ function homeController( Firebase, $timeout, $document, $window ) {
   };
   angular.element( $window ).bind( 'load', vm.isMobileCalculate );
   angular.element( $window ).bind( 'resize', vm.isMobileCalculate );
+  
+  
+  //Broadcast message
+  vm.broadcastMessage = function broadcastMessage () {
+    var dialog = $document[0].querySelector('dialog.broadcast-message');
+    if ( !dialog.showModal ) {
+      dialogPolyfill.registerDialog( dialog );
+    }
+    dialog.showModal();
+  };
+  
+  vm.dontBroadcastMessage = function dontBroadcastMessage() {
+    var dialog = $document[0].querySelector('dialog.broadcast-message');
+    dialog.close();
+  }
+  
+  vm.sendBroadcastMessage = function sendBroadcastMessage () {   
+    if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
+      return;
+    }
+    Firebase.broadastMessage( vm.new_broadcast_message );
+    var dialog = $document[0].querySelector('dialog.broadcast-message');
+    dialog.close();
+    vm.new_broadcast_message = '';
+  }
 }
