@@ -3,6 +3,7 @@
 
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
+var dialogPolyfill = require( '../../../node_modules/dialog-polyfill/dialog-polyfill' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
 require( '../../../public/js/sweetalert.min' );
 
@@ -134,6 +135,9 @@ function homeController( Firebase, $timeout, $document, $window ) {
   
   vm.downloadLog = function downloadLog () {
     var dialog = $document[0].querySelector('dialog.download-log');
+    if ( !dialog.showModal ) {
+      dialogPolyfill.registerDialog( dialog );
+    }
     dialog.showModal();
   };
   
