@@ -89,11 +89,17 @@
 
 
 .profile {
-  img {
+  text-align: center;
+
+  .image {
     display: block;
     margin: 20px auto;
     width: 96px;
     border-radius: 50%;
+    height: 96px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
   }
 
   .name {

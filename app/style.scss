@@ -3,10 +3,13 @@
 @import '../node_modules/material-design-lite/dist/material.deep_purple-blue.min';
 
 @import '../public/css/sweetalert';
-@import '../public/css/sweetalert-override.min';
+
+@import '../public/css/bootstrap-datetimepicker';
+@import '../public/css/fonts/glyphicons';
 
 /* styles */
 @import 'custom/colors';
+@import 'custom/sweetalert-override';
 
 @import './templates/authentication/authentication';
 @import './templates/home/general';

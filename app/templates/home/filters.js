@@ -15,11 +15,11 @@ function showTimeFilter() {
     var s = '';
 
     if ( date( 'm-d', d ) !== date( 'm-d' ) ) {
-      s += date( 'M j' );
+      s += date( 'M j', d );
     }
 
     if ( date( 'Y', d ) !== date( 'Y' ) ) {
-      s += ( ( s === '' ) ? '' : ', ' ) + date( 'Y' );
+      s += ( ( s === '' ) ? '' : ', ' ) + date( 'Y', d );
     }
 
     return s + ( ( s === '' ) ? '' : ' - ' ) + date( 'H:i', d );

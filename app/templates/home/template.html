@@ -12,7 +12,7 @@
         </div>
         
         <div class="profile_picture">
-          <div class="picture_container" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}')">
+          <div class="picture_container" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}')" >
           </div>
             
           <div ng-show="vm.editing_profile" class="edit"><a href="" ng-click="vm.selectProfilePicture()">edit</a></div>
@@ -175,6 +175,23 @@
         </div>
       </div>
     </main>
+    
+    <!-- Download Log !-->
+    <dialog class="mdl-dialog download-log">
+      <div class="mdl-dialog__content">
+        <p>
+          Select the period to download
+        </p>
+        
+        <input ng-model='vm.from' type='text' placeholder='From' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true">
+        <input ng-model='vm.to' type='text' placeholder='To' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true" >
+        
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button" ng-click="vm.downloadLogFile()">Download</button>
+        <button type="button" class="mdl-button close" ng-click="vm.dontDownloadLog()">Close</button>
+      </div>
+    </dialog>
     
     <div class="mdl-layout__obfuscator {{ (vm.my_profile_visible) ? 'is-visible' : '' }}" ng-click="vm.showMyProfile(false)"></div>
   </div>
