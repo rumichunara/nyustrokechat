@@ -148,9 +148,7 @@
               <div class="when">
                 {{ m.when | showTime }}
               </div>
-              <div class="text">
-                {{ m.text }}
-              </div>
+              <div class="text" ng-bind-html="m.text | addAnchors"></div>
             </div>
           </div>
           <div class="new" ng-show="vm.Firebase.users[vm.Firebase.user_id].group_id">
