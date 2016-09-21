@@ -32,8 +32,8 @@ function homeController( Firebase, $timeout, $document, $window ) {
   vm.new_message = '';
   vm.last_message_loaded = -1;
   
-  vm.from = date('Y-m-d');
-  vm.to = date('Y-m-d');
+  vm.from = date( 'Y-m-d' );
+  vm.to = date( 'Y-m-d' );
   
   vm.new_broadcast_message = '';
 
@@ -85,7 +85,7 @@ function homeController( Firebase, $timeout, $document, $window ) {
       var usr = Firebase.users[userId];
       var imgSrc = vm.getProfilePicture( usr );
       var usrName = usr.name;
-      var usrEmail = (usr.email) ? usr.email : '';
+      var usrEmail = ( usr.email ) ? usr.email : '';
       var joinedDate = date( 'F j, Y', new Date( usr.joined ) );
       var lastActive = date( 'F j, Y', new Date( usr.last_active ) );
 
@@ -136,17 +136,17 @@ function homeController( Firebase, $timeout, $document, $window ) {
   };
   
   vm.downloadLog = function downloadLog () {
-    var dialog = $document[0].querySelector('dialog.download-log');
+    var dialog = $document[0].querySelector( 'dialog.download-log' );
     if ( !dialog.showModal ) {
       dialogPolyfill.registerDialog( dialog );
     }
     dialog.showModal();
   };
   
-  vm.dontDownloadLog = function () {
-    var dialog = $document[0].querySelector('dialog.download-log');
+  vm.dontDownloadLog = function dontDownloadLog () {
+    var dialog = $document[0].querySelector( 'dialog.download-log' );
     dialog.close();
-  }
+  };
   
   vm.downloadLogFile = function downloadLogFile () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
@@ -166,7 +166,7 @@ function homeController( Firebase, $timeout, $document, $window ) {
     var lineArray = [];
     angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
       var t = date( 'Y-m-d H:i:s', new Date( d.when ) );
-      if (t >= `${vm.from} 00:00:00` && t <= `${vm.to} 23:59:59`) {
+      if ( t >= `${vm.from} 00:00:00` && t <= `${vm.to} 23:59:59` ) {
         lineArray.push( `${t},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
       }
     });
@@ -327,7 +327,7 @@ function homeController( Firebase, $timeout, $document, $window ) {
   
   //Broadcast message
   vm.broadcastMessage = function broadcastMessage () {
-    var dialog = $document[0].querySelector('dialog.broadcast-message');
+    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
     if ( !dialog.showModal ) {
       dialogPolyfill.registerDialog( dialog );
     }
@@ -335,17 +335,17 @@ function homeController( Firebase, $timeout, $document, $window ) {
   };
   
   vm.dontBroadcastMessage = function dontBroadcastMessage() {
-    var dialog = $document[0].querySelector('dialog.broadcast-message');
+    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
     dialog.close();
-  }
+  };
   
   vm.sendBroadcastMessage = function sendBroadcastMessage () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
     }
     Firebase.broadastMessage( vm.new_broadcast_message );
-    var dialog = $document[0].querySelector('dialog.broadcast-message');
+    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
     dialog.close();
     vm.new_broadcast_message = '';
-  }
+  };
 }

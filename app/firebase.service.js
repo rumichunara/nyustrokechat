@@ -368,7 +368,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       }
     },
     
-    broadastMessage: function ( message ) {
+    broadastMessage: function broadastMessage ( message ) {
       var when = new Date().getTime();
       if ( message !== '' && instance.user_id !== null ) {
         angular.forEach( instance.groups, function forEach ( group, groupId ) {

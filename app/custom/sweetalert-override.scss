@@ -1,31 +1,33 @@
+$black: rgba(0, 0, 0, 0.87);
+$violet: #7B1FA2;
+
 .sweet-alert {
   background-color: white;
 
   h2 {
+    margin: 10px 0;
     font-size: 20px;
     font-weight: 500;
     letter-spacing: .005em;
     text-align: left;
-    margin: 10px 0px;
   }
-  
+
   p {
+    margin: 0.8em 0 1.6em;
     font-size: 1.1rem;
     font-weight: 400;
     letter-spacing: 0.010em;
     line-height: 1.6em;
-    margin: 0.8em 0 1.6em;
-    color: rgba(0, 0, 0, 0.87);
+    color: $black;
     text-align: left;
   }
 
   input {
+    margin: 0;
     border: none;
     box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.06);
-    border-bottom: 1px solid rgba(0,0,0,.12);
+    border-bottom: 1px solid rgba(0, 0, 0, .12);
     font-size: 16px;
-    font-family: "Helvetica","Arial",sans-serif;
-    margin: 0;
     padding: 4px 0;
     width: 100%;
     background: 0 0;
@@ -35,28 +37,28 @@
 
   input:focus {
     outline: none;
-    box-shadow: 0px 0px 0px #c4e6f5;
+    box-shadow: 0 0 0 #C4E6F5;
     border: none;
     border-bottom: 1px solid #7B1FA2;
   }
 
   button, button.cancel, button.confirm {
+    display: inline-block;
+    margin: 0;
     background: 0 0;
     border: none;
     border-radius: 2px;
     position: relative;
     height: 36px;
-    margin: 0;
     min-width: 64px;
     padding: 0 16px;
-    display: inline-block;
     font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0;
     overflow: hidden;
     will-change: box-shadow;
-    transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+    transition: box-shadow .2s cubic-bezier(.4, 0, 1, 1), background-color .2s cubic-bezier(.4, 0, .2, 1), color .2s cubic-bezier(.4, 0, .2, 1);
     outline: none;
     cursor: pointer;
     text-decoration: none;
@@ -66,15 +68,15 @@
   }
 
   button, button.cancel {
-    color: #000;
+    color: $black;
   }
 
   button.confirm {
-    color: #7B1FA2;
+    color: $violet;
   }
 
   button:hover, button.cancel:hover, button.confirm:hover {
-    background-color: rgba(158,158,158,.2);
+    background-color: rgba(158, 158, 158, .2);
   }
 
   .sa-button-container {
