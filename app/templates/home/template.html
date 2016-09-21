@@ -125,10 +125,18 @@
               <i class="material-icons">more_vert</i>
             </button>
 
+            </a>
+            
+            <button ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" ng-click="vm.downloadLog()" class="mdl-button mdl-js-button mdl-button--icon more-options-2">
+              <i class="material-icons">file_download</i>
+            </button>
+            
+            <button ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" ng-click="vm.deleteGroup()" class="mdl-button mdl-js-button mdl-button--icon more-options-1">
+              <i class="material-icons">delete</i>
+            </button>
+            
             <ul ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-group">
               <li class="mdl-menu__item" ng-click="vm.renameGroup()">Rename group</li>
-              <li class="mdl-menu__item" ng-click="vm.deleteGroup()">Delete group</li>
-              <li class="mdl-menu__item" ng-click="vm.downloadLog()">Download log</li>
             </ul>
           </div>
           <div class="list" id="messages_list">

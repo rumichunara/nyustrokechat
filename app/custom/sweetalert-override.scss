@@ -82,4 +82,12 @@ $violet: #7B1FA2;
   .sa-button-container {
     margin-top: 40px;
   }
+
+  .sa-icon.sa-warning {
+    margin: 0;
+    height: 0;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+  }
 }
