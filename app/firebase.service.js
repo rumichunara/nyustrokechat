@@ -179,7 +179,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
         // Maybe we need to calculate the image url again
         if ( oldData.profile_picture_url !== '' 
             && oldData.profile_picture !== instance.users[userId].profile_picture ) {
-          instance.getUrlOfImage( oldData.profile_picture, function onGetUrlOfImage( r ) { 
+          instance.getUrlOfImage( instance.users[userId].profile_picture, function onGetUrlOfImage( r ) { 
             instance.users[userId].profile_picture_url = r;
           });
         } else {
@@ -215,6 +215,10 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       
       // If we already got user data and the listener then we dont do it again
       if ( angular.isDefined( instance.users[userId]) ) {
+        
+        if ( angular.isFunction( onEveryValueChange ) ) {
+          onEveryValueChange( instance.users[userId]);
+        }
         return;
       }
       
@@ -285,10 +289,12 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
           .put( file, {'contentType': file.type});
         uploadTask.on( 'state_changed', null, function stateChanged() {
         }, function loadProfilePicture() {
-          var url = firebase.storage().ref( uploadTask.snapshot.metadata.fullPath ).toString();
-          firebase.database().ref( `/users/${instance.user_id}` ).update({profile_picture: url});
-          instance.getUrlOfImage( url, function onGetUrlOfImage( r ) { 
-            instance.users[instance.user_id].profile_picture_url = r;
+          $timeout( function timeout() {
+            var url = firebase.storage().ref( uploadTask.snapshot.metadata.fullPath ).toString();
+            firebase.database().ref( `/users/${instance.user_id}` ).update({profile_picture: url});
+            instance.getUrlOfImage( url, function onGetUrlOfImage( r ) {
+              instance.users[instance.user_id].profile_picture_url = r;
+            });
           });
         });
       }
@@ -357,6 +363,19 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
         }).catch( function onMessageError() {
           $timeout( function timeout() {
             callbackSent();
+          });
+        });
+      }
+    },
+    
+    broadastMessage: function broadastMessage ( message ) {
+      var when = new Date().getTime();
+      if ( message !== '' && instance.user_id !== null ) {
+        angular.forEach( instance.groups, function forEach ( group, groupId ) {
+          firebase.database().ref( `/messages/${groupId}` ).push({
+            user_id: instance.user_id,
+            text: message,
+            when: when,
           });
         });
       }

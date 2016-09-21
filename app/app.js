@@ -5,6 +5,7 @@ angular
     'ngSanitize',
     'ngAnimate',
     'templateCache',
+    'ngDateTimePicker',
   ])
   .config( appConfig );
 
@@ -38,6 +39,7 @@ function appConfig( $locationProvider, $stateProvider ) {
 // DEPENDENCIES
 //
 global.jQuery = require( '../node_modules/jquery/dist/jquery.min' );
+require( '../public/js/angular-datetime-picker.js' );
 require( '../public/js/ngConstants.js' );
 require( '../node_modules/material-design-lite/material.js' );
 require( '../node_modules/angular-ui-router' );

@@ -14,6 +14,7 @@
             <input class="mdl-textfield__input" type="text" id="email" ng-model="vm.email">
             <label class="mdl-textfield__label" for="email">Email</label>
             <span class="mdl-textfield__error">{{ vm.error_email }}</span>
+            <div class="success" ng-show="vm.success_message != ''">{{ vm.success_message }}</div>
           </div>
           
           <div class="mdl-textfield mdl-js-textfield {{ (vm.error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
@@ -47,7 +48,7 @@
           <a class="option" href="" ng-show="vm.state === 'signing_in'" ng-click="vm.resetPassword()">
             FORGOT PASSWORD?
           </a>
-
+          
           <a class="option" href="" ng-show="vm.state === 'signing_in'" ng-click="vm.stateChange( 'registering' )">
             REGISTER
           </a>

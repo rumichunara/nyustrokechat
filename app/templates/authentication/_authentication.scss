@@ -14,6 +14,12 @@
     position: absolute;
     top: 50%;
     left: 50%;
+
+    .success {
+      color: $white;
+      margin-top: 10px;
+      font-size: 13px;
+    }
   }
 
   img.logo {

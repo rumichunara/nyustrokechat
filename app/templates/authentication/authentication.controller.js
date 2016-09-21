@@ -11,6 +11,7 @@ function authenticationController( $scope, Firebase ) {
   vm.state = 'signing_in';
   vm.terms_read = false;
   vm.in_progress = false;
+  vm.success_message = '';
   
   // Initialization
   vm.Firebase = Firebase.init();
@@ -22,7 +23,7 @@ function authenticationController( $scope, Firebase ) {
   
   vm.reset();
   vm.errorReset = function errorReset() {
-    vm.error_email = vm.error_password = vm.error_confirm_password = '';
+    vm.success_message = vm.error_email = vm.error_password = vm.error_confirm_password = '';
   };
   
   vm.errorReset();
@@ -69,12 +70,12 @@ function authenticationController( $scope, Firebase ) {
   
   vm.resetPassword = function resetPassword() {
     Firebase.sendPasswordResetEmail( vm.email, function callbackSuccess() {
-      vm.error_email = 'An email has been sent to this address with further instructions';
+      vm.success_message = 'An email has been sent to this address with further instructions.';
       vm.in_progress = false;
     }, function callbackError( error ) {
       vm.error_email = error.message;
       vm.in_progress = false;
     });
-  };
+  };  
 }
 

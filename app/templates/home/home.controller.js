@@ -3,6 +3,7 @@
 
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
+var dialogPolyfill = require( '../../../node_modules/dialog-polyfill/dialog-polyfill' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
 require( '../../../public/js/sweetalert.min' );
 
@@ -30,6 +31,11 @@ function homeController( Firebase, $timeout, $document, $window ) {
   vm.sending_message = false;
   vm.new_message = '';
   vm.last_message_loaded = -1;
+  
+  vm.from = date( 'Y-m-d' );
+  vm.to = date( 'Y-m-d' );
+  
+  vm.new_broadcast_message = '';
 
   
   //Profile stuff
@@ -79,13 +85,13 @@ function homeController( Firebase, $timeout, $document, $window ) {
       var usr = Firebase.users[userId];
       var imgSrc = vm.getProfilePicture( usr );
       var usrName = usr.name;
-      var usrEmail = usr.email;
+      var usrEmail = ( usr.email ) ? usr.email : '';
       var joinedDate = date( 'F j, Y', new Date( usr.joined ) );
       var lastActive = date( 'F j, Y', new Date( usr.last_active ) );
 
       var t = `
         <div class="profile">
-          <img src="${imgSrc}" />
+          <div class="image" style="background-image: url('${imgSrc}')" ></div>
           <div class="name">${usrName}</div>
           <div class="email">${usrEmail}</div>
           <div class="joined">Joined <span>${joinedDate}</span></div>
@@ -130,10 +136,23 @@ function homeController( Firebase, $timeout, $document, $window ) {
   };
   
   vm.downloadLog = function downloadLog () {
+    var dialog = $document[0].querySelector( 'dialog.download-log' );
+    if ( !dialog.showModal ) {
+      dialogPolyfill.registerDialog( dialog );
+    }
+    dialog.showModal();
+  };
+  
+  vm.dontDownloadLog = function dontDownloadLog () {
+    var dialog = $document[0].querySelector( 'dialog.download-log' );
+    dialog.close();
+  };
+  
+  vm.downloadLogFile = function downloadLogFile () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
     }
-
+    
     var groupId = vm.Firebase.users[vm.Firebase.user_id].group_id;
     var escapeString = function escapeString ( s ) {
       var innerValue = ( s === null ) ? '' : s.toString();
@@ -146,7 +165,10 @@ function homeController( Firebase, $timeout, $document, $window ) {
             
     var lineArray = [];
     angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
-      lineArray.push( `${date( 'Y-m-d H:i:s', new Date( d.when ) )},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
+      var t = date( 'Y-m-d H:i:s', new Date( d.when ) );
+      if ( t >= `${vm.from} 00:00:00` && t <= `${vm.to} 23:59:59` ) {
+        lineArray.push( `${t},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
+      }
     });
     var csvContent = lineArray.join( '\n' );
 
@@ -266,7 +288,7 @@ function homeController( Firebase, $timeout, $document, $window ) {
       type: 'input',   
       showCancelButton: true,   
       closeOnConfirm: false,   
-      inputPlaceholder: 'Email addres',
+      inputPlaceholder: 'Email address',
     }, 
     function response ( inputValue ) {
       if ( inputValue === false ) {
@@ -301,4 +323,29 @@ function homeController( Firebase, $timeout, $document, $window ) {
   };
   angular.element( $window ).bind( 'load', vm.isMobileCalculate );
   angular.element( $window ).bind( 'resize', vm.isMobileCalculate );
+  
+  
+  //Broadcast message
+  vm.broadcastMessage = function broadcastMessage () {
+    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
+    if ( !dialog.showModal ) {
+      dialogPolyfill.registerDialog( dialog );
+    }
+    dialog.showModal();
+  };
+  
+  vm.dontBroadcastMessage = function dontBroadcastMessage() {
+    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
+    dialog.close();
+  };
+  
+  vm.sendBroadcastMessage = function sendBroadcastMessage () {   
+    if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
+      return;
+    }
+    Firebase.broadastMessage( vm.new_broadcast_message );
+    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
+    dialog.close();
+    vm.new_broadcast_message = '';
+  };
 }
