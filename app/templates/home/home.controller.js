@@ -3,6 +3,7 @@
 
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
+var strtotime = require( '../../../node_modules/locutus/php/datetime/strtotime' );
 var dialogPolyfill = require( '../../../node_modules/dialog-polyfill/dialog-polyfill' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
 require( '../../../public/js/sweetalert.min' );
@@ -171,36 +172,11 @@ function homeController( Firebase, $timeout, $document, $window ) {
       return;
     }
     
-    // First, keep the reference to the message focused, because we will have to load them all
-    var eId = jQuery( '#messages_list > div:first' ).attr( 'id' );
-    
-    // We will have to check if we have loaded all messages by asking with a timeout
-    vm.lastMessageLoadedOn = new Date().getTime();
-    $timeout( vm.areAllMessagesLoaded, 100 );
-    
     // Lets load all the messages
-    Firebase.loadAllMessages( function onMessageLoaded () {
-      // When every message is loaded we will keep focus
-      $timeout( function gotToCurrentMessageNow () {
-        // Then wi will scroll to that message
-        jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).scrollTop() - jQuery( '#messages_list' ).offset().top + jQuery( `#${eId}` ).offset().top );
-      });
-      // Lets keep track when the last message arrived
-      vm.lastMessageLoadedOn = new Date().getTime();
-    });
+    Firebase.loadAllMessages( strtotime(date(`${vm.from} 00:00:00`))*1000, strtotime(date(`${vm.to} 23:59:59`))*1000, vm.downloadLogNow );
   };
   
-  vm.areAllMessagesLoaded = function areAllMessagesLoaded () {
-    // If a second has elapsed since the last message received then lets download the file
-    if ( vm.lastMessageLoadedOn + 1000 < new Date().getTime() ) {
-      vm.downloadLogNow();
-    } else { // If not, lets continue checking every 100 milliseconds
-      $timeout( vm.areAllMessagesLoaded, 100 );
-    }
-  };
-  
-  vm.downloadLogNow = function downloadLogNow() {
-    var groupId = vm.Firebase.users[vm.Firebase.user_id].group_id;
+  vm.downloadLogNow = function downloadLogNow( messages ) {
     var escapeString = function escapeString ( s ) {
       var innerValue = ( s === null ) ? '' : s.toString();
       var result = innerValue.replace( /"/g, '""' );
@@ -211,11 +187,9 @@ function homeController( Firebase, $timeout, $document, $window ) {
     };
             
     var lineArray = [];
-    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
+    angular.forEach( messages, function forEach ( d ) {
       var t = date( 'Y-m-d H:i:s', new Date( d.when ) );
-      if ( t >= `${vm.from} 00:00:00` && t <= `${vm.to} 23:59:59` ) {
-        lineArray.push( `${t},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
-      }
+      lineArray.push( `${t},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
     });
     var csvContent = lineArray.join( '\n' );
 

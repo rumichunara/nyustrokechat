@@ -22,8 +22,8 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     possible_full_name: '',
     user_loaded_times: 0,
     
-    messages_to_load: 10,
-    messages_to_load_step: 10,
+    messages_to_load: 100,
+    messages_to_load_step: 100,
     
     colors: ['blue', 'green', 'red', 'yellow', 'brown', 
              'pink', 'indigo', 'lightgreen', 'purple',
@@ -343,13 +343,13 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       }
     },
     
-    loadAllMessages: function loadAllMessages( onMessageLoaded ) {
+    loadAllMessages: function loadAllMessages( start, end, onMessageLoaded ) {
       // When scrolling to the top, load more messages!
       if ( instance.users[instance.user_id].group_id !== null ) {
-        instance.messages[instance.users[instance.user_id].group_id] = [];
         var mr = firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` );
-        mr.off();
-        mr.on( 'child_added', instance._addMessage( onMessageLoaded ) );
+        mr.orderByChild("when").startAt(start).endAt(end).once( 'value', function (d) {
+          onMessageLoaded( d.val() );
+        });
       }
     },
     
