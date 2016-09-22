@@ -14,10 +14,10 @@ angular
   .controller( 'HomeController', homeController );
   
   
-homeController.$inject = ['Firebase', '$timeout', '$document', '$window'];
+homeController.$inject = ['Firebase', '$timeout', '$document', '$window', '$http'];
 
 
-function homeController( Firebase, $timeout, $document, $window ) {
+function homeController( Firebase, $timeout, $document, $window, $http ) {
   
   var vm = this;
   vm.Firebase = Firebase.init();
@@ -327,6 +327,10 @@ function homeController( Firebase, $timeout, $document, $window ) {
       
       Firebase.addUser( Firebase.users[Firebase.user_id].group_id, inputValue );
       swal( 'User invited', 'The person behind that email address has been invited.', 'success' );
+
+      Firebase.getToken( function onTokenGot ( idToken ) {
+        $http.post( '/api/send_invitation', {idToken: idToken, email: inputValue});
+      });
     });
   };
   

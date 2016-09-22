@@ -171,6 +171,13 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.auth().signOut();
     },
     
+    getToken: function getToken( callback ) {
+      firebase.auth().currentUser.getToken( true ).then( function getIdToken ( idToken ) {
+        if ( angular.isFunction( callback ) ) {
+          callback( idToken );
+        }
+      });
+    },
     
     
     // Profile stuff
@@ -373,7 +380,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     
     sendMessage: function sendMessage( message, callbackSent ) {
       if ( message !== '' && instance.user_id !== null 
-        && instance.users[instance.user_id].group_id !== null ) {
+        && instance.users[instance.user_id] && instance.users[instance.user_id].group_id !== null ) {
         firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` ).push({
           user_id: instance.user_id,
           text: message,

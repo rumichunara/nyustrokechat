@@ -85,8 +85,10 @@
   "dependencies": {
     "angular-ui-router": "~0.2.18",
     "dialog-polyfill": "^0.4.4",
+    "firebase": "^3.4.0",
     "jquery": "^3.1.0",
     "material-design-lite": "^1.2.0",
-    "moment": "^2.15.1"
+    "moment": "^2.15.1",
+    "postmark": "^1.2.1"
   }
 }
