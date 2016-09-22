@@ -347,7 +347,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       // When scrolling to the top, load more messages!
       if ( instance.users[instance.user_id].group_id !== null ) {
         var mr = firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` );
-        mr.orderByChild("when").startAt(start).endAt(end).once( 'value', function (d) {
+        mr.orderByChild( 'when' ).startAt( start ).endAt( end ).once( 'value', function valueRead ( d ) {
           onMessageLoaded( d.val() );
         });
       }

@@ -173,7 +173,7 @@ function homeController( Firebase, $timeout, $document, $window ) {
     }
     
     // Lets load all the messages
-    Firebase.loadAllMessages( strtotime(date(`${vm.from} 00:00:00`))*1000, strtotime(date(`${vm.to} 23:59:59`))*1000, vm.downloadLogNow );
+    Firebase.loadAllMessages( strtotime( date( `${vm.from} 00:00:00` ) ) * 1000, strtotime( date( `${vm.to} 23:59:59` ) ) * 1000, vm.downloadLogNow );
   };
   
   vm.downloadLogNow = function downloadLogNow( messages ) {
