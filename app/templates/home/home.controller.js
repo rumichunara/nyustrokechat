@@ -107,15 +107,31 @@ function homeController( Firebase, $timeout, $document, $window ) {
   // Chat stuff
   
   // Workaround for scrolling to bottom when group is loaded but not at any other moment
-  Firebase.addOnMessageLoaded( function callback () {
+  Firebase.addOnMessagesFirstLoaded( function callback () {
     $timeout( function scrollToBottomOnStart () {
-      var t = new Date().getTime();
-      if ( Firebase.last_message_loaded === -1 || t - Firebase.last_message_loaded < 100 ) {
-        Firebase.setLastMessageLoaded( t );
-        jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).prop( 'scrollHeight' ) );
-      }
-    }, 0 );
+      jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).prop( 'scrollHeight' ) );
+    });
   });
+  
+  // Lets detect when we are at the top and load more messages
+  jQuery( '#messages_list' ).scroll( function onScroll() {
+    var pos = jQuery( '#messages_list' ).scrollTop();
+    if ( pos === 0 ) {
+      // Maybe this was triggered when there were no messages, if thats the cae, we will ignore it
+      if ( jQuery( '#messages_list > div' ).length === 0 ) {
+        return;
+      }
+      // First, lets keep a reference to the element where the scroll must be left
+      var eId = jQuery( '#messages_list > div:first' ).attr( 'id' );
+      Firebase.loadMoreMessages( function gotToCurrentMessage () {
+        $timeout( function gotToCurrentMessageNow () {
+          // Then wi will scroll to that message
+          jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).scrollTop() - jQuery( '#messages_list' ).offset().top + jQuery( `#${eId}` ).offset().top );
+        });
+      });
+    }
+  });
+
   
   vm.sendMessage = function sendMessage ( m ) {
     vm.new_message = ''; // For not losing focus when pressing enter
@@ -148,11 +164,42 @@ function homeController( Firebase, $timeout, $document, $window ) {
     dialog.close();
   };
   
+  vm.lastMessageLoadedOn = -1;
+  
   vm.downloadLogFile = function downloadLogFile () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
     }
     
+    // First, keep the reference to the message focused, because we will have to load them all
+    var eId = jQuery( '#messages_list > div:first' ).attr( 'id' );
+    
+    // We will have to check if we have loaded all messages by asking with a timeout
+    vm.lastMessageLoadedOn = new Date().getTime();
+    $timeout( vm.areAllMessagesLoaded, 100 );
+    
+    // Lets load all the messages
+    Firebase.loadAllMessages( function onMessageLoaded () {
+      // When every message is loaded we will keep focus
+      $timeout( function gotToCurrentMessageNow () {
+        // Then wi will scroll to that message
+        jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).scrollTop() - jQuery( '#messages_list' ).offset().top + jQuery( `#${eId}` ).offset().top );
+      });
+      // Lets keep track when the last message arrived
+      vm.lastMessageLoadedOn = new Date().getTime();
+    });
+  };
+  
+  vm.areAllMessagesLoaded = function areAllMessagesLoaded () {
+    // If a second has elapsed since the last message received then lets download the file
+    if ( vm.lastMessageLoadedOn + 1000 < new Date().getTime() ) {
+      vm.downloadLogNow();
+    } else { // If not, lets continue checking every 100 milliseconds
+      $timeout( vm.areAllMessagesLoaded, 100 );
+    }
+  };
+  
+  vm.downloadLogNow = function downloadLogNow() {
     var groupId = vm.Firebase.users[vm.Firebase.user_id].group_id;
     var escapeString = function escapeString ( s ) {
       var innerValue = ( s === null ) ? '' : s.toString();

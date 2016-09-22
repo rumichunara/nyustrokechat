@@ -12,7 +12,7 @@
         </div>
         
         <div class="profile_picture">
-          <div class="picture_container" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}')" >
+          <div ng-if="vm.Firebase.user_id && vm.Firebase.users[vm.Firebase.user_id]" class="picture_container" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}')" >
           </div>
             
           <div ng-show="vm.editing_profile" class="edit"><a href="" ng-click="vm.selectProfilePicture()">edit</a></div>
@@ -140,7 +140,7 @@
             </ul>
           </div>
           <div class="list" id="messages_list">
-            <div ng-repeat="m in vm.Firebase.messages[vm.Firebase.users[vm.Firebase.user_id].group_id]" class="message b-{{ $index % 4 }}">
+            <div ng-repeat="m in vm.Firebase.messages[vm.Firebase.users[vm.Firebase.user_id].group_id]" class="message b-{{ $index % 4 }}" id="m_{{ m.when }}">
               <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[m.user_id]) }}')"></div>
               <div class="name c-{{ vm.Firebase.users[m.user_id].color }}">
                 <a href="" ng-click="vm.showProfile(m.user_id)">{{ vm.Firebase.users[m.user_id].name }}</a>
