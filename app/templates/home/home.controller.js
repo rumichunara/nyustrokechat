@@ -329,7 +329,7 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
       swal( 'User invited', 'The person behind that email address has been invited.', 'success' );
 
       Firebase.getToken( function onTokenGot ( idToken ) {
-        $http.post( '/api/send_invitation', {idToken: idToken, email: inputValue});
+        $http.post( '/send_invitation', {idToken: idToken, email: inputValue});
       });
     });
   };
