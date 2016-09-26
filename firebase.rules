@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "invited": {
+      ".read": "auth != null",
+      ".write": "auth != null && ((root.child('users').child(auth.uid).child('admin').val() == true))",
+    },
+    "users": {
+      ".read": "auth != null",
+      
+      "$user_id": {
+        ".read": "auth != null && root.child('users').child(auth.uid).exists()",
+        ".write": "auth != null && ((root.child('users').child(auth.uid).child('admin').val() == true) || auth.uid === $user_id)",
+        
+        "admin": {
+          ".validate": false,
+        }
+      }
+    },
+    "groups": {
+      ".read": "auth != null && root.child('users').child(auth.uid).exists() && ((root.child('users').child(auth.uid).child('admin').val() == true))",
+      
+      "$group_id": {
+        ".read": "auth != null && root.child('users').child(auth.uid).exists() && ((root.child('users').child(auth.uid).child('admin').val() == true) || (root.child('users').child(auth.uid).child('group_id').val() == $group_id))",
+        ".write": "auth != null && root.child('users').child(auth.uid).exists()&& ((root.child('users').child(auth.uid).child('admin').val() == true) || ((root.child('users').child(auth.uid).child('group_id').val() == $group_id && newData.exists())))",
+        
+        "members": {
+          "$index": {
+          	".validate": "auth != null && ((root.child('users').child(auth.uid).child('admin').val() == true) || (root.child('users').child(auth.uid).child('group_id').val() == $group_id && newData.val() == auth.uid) && newData.exists())",
+          }
+        }
+      }
+    },
+    "messages": {
+      "$group_id": {
+        ".read": "auth != null && root.child('users').child(auth.uid).exists() && ((root.child('users').child(auth.uid).child('admin').val() == true) || (root.child('users').child(auth.uid).child('group_id').val() == $group_id))",
+        
+        "$message_id": {
+          ".write": "auth != null && root.child('users').child(auth.uid).exists() && ((root.child('users').child(auth.uid).child('admin').val() == true) || (root.child('users').child(auth.uid).child('group_id').val() == $group_id && newData.child('user_id').val() == auth.uid)) && newData.exists()",
+        }
+      }
+    },
+  }
+}

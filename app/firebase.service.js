@@ -22,6 +22,9 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     possible_full_name: '',
     user_loaded_times: 0,
     
+    messages_to_load: 100,
+    messages_to_load_step: 100,
+    
     colors: ['blue', 'green', 'red', 'yellow', 'brown', 
              'pink', 'indigo', 'lightgreen', 'purple',
              'amber', 'lightblue', 'deeporange', 'cyan',
@@ -92,7 +95,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
                         });
                         instance.addUserToGroup( instance.user_id, v.group_id );
                         // Lets on purpose load its group data, because its not loaded any other way
-                        instance.getGroupData( v.group_id, instance.loadMessages );
+                        instance.getGroupData( v.group_id, instance.loadMessagesTheFirstTime );
                       }
 
                     });
@@ -100,7 +103,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
                 } else {
                   // Let's get the user's group data
                   instance.getGroupData( instance.users[instance.user_id].group_id, 
-                    instance.loadMessages );
+                    instance.loadMessagesTheFirstTime );
                   
                   // If its an admin
                   if ( instance.users[instance.user_id].admin ) {
@@ -168,6 +171,13 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.auth().signOut();
     },
     
+    getToken: function getToken( callback ) {
+      firebase.auth().currentUser.getToken( true ).then( function getIdToken ( idToken ) {
+        if ( angular.isFunction( callback ) ) {
+          callback( idToken );
+        }
+      });
+    },
     
     
     // Profile stuff
@@ -191,7 +201,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
           // We dont need anymore the old group messages
           instance.messages[oldData.group_id] = []; 
           // We will have to listen for messages again
-          instance.loadMessages();
+          instance.loadMessagesTheFirstTime();
         }
       } else {
         // Its the first time we are loading its data
@@ -310,47 +320,67 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     
 
     // Message stuff
-    loadMessages: function loadMessages() {
-      instance.last_message_loaded = -1; // Signal for forcing scrolling down
-      instance._onMessageLoaded();
+    loadMessagesTheFirstTime: function loadMessagesTheFirstTime() {
       if ( instance.users[instance.user_id].group_id !== null ) {
         instance.messages[instance.users[instance.user_id].group_id] = [];
         var mr = firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` );
         mr.off();
-        mr.on( 'child_added', instance._addMessage );
+        mr.limitToLast( instance.messages_to_load ).on( 'child_added', instance._addMessage( instance._onMessagesFirstLoaded ) );
       }
     },
     
-    _onMessageLoaded: function _onMessageLoaded () { 
+    _onMessagesFirstLoaded: function _onMessagesFirstLoaded () { 
       // Dummy, to be set
     },
     
-    addOnMessageLoaded: function addOnMessageLoaded ( a ) {
+    addOnMessagesFirstLoaded: function addOnMessagesFirstLoaded ( a ) {
       if ( angular.isFunction( a ) ) {
-        instance._onMessageLoaded = a;
+        instance._onMessagesFirstLoaded = a;
       }
     },
     
-    setLastMessageLoaded: function setLastMessageLoaded( t ) {
-      instance.last_message_loaded = t;
+    loadMoreMessages: function loadMoreMessages( onMessageLoaded ) {
+      instance.messages_to_load += instance.messages_to_load_step;
+      // When scrolling to the top, load more messages!
+      if ( instance.users[instance.user_id].group_id !== null ) {
+        instance.messages[instance.users[instance.user_id].group_id] = [];
+        var mr = firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` );
+        mr.off();
+        mr.limitToLast( instance.messages_to_load ).on( 'child_added', instance._addMessage( onMessageLoaded ) );
+      }
     },
     
-    _addMessage: function _addMessage( v ) {
-      $timeout( function timeout() {
-        var d = v.val();
-        instance.last_message_loaded = new Date().getTime();
-        instance._onMessageLoaded();
-        instance.getUserData( d.user_id );
-        if ( angular.isUndefined( instance.messages[instance.users[instance.user_id].group_id]) ) {
-          instance.messages[instance.users[instance.user_id].group_id] = [];
-        }
-        instance.messages[instance.users[instance.user_id].group_id].push( d );
-      });
+    loadAllMessages: function loadAllMessages( start, end, onMessageLoaded ) {
+      // When scrolling to the top, load more messages!
+      if ( instance.users[instance.user_id].group_id !== null ) {
+        var mr = firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` );
+        mr.orderByChild( 'when' ).startAt( start ).endAt( end ).once( 'value', function valueRead ( d ) {
+          onMessageLoaded( d.val() );
+        });
+      }
+    },
+    
+    _addMessage: function _addMessage( onMessageLoaded ) {
+      return function loadMessage( v ) {
+        $timeout( function timeout() {
+          var d = v.val();
+          instance.getUserData( d.user_id );
+          
+          if ( angular.isUndefined( instance.messages[instance.users[instance.user_id].group_id]) ) {
+            instance.messages[instance.users[instance.user_id].group_id] = [];
+          }
+          instance.messages[instance.users[instance.user_id].group_id].push( d );
+          
+          if ( angular.isFunction( onMessageLoaded ) ) {
+            onMessageLoaded();
+          }
+        });
+      };
     },
     
     sendMessage: function sendMessage( message, callbackSent ) {
       if ( message !== '' && instance.user_id !== null 
-        && instance.users[instance.user_id].group_id !== null ) {
+        && instance.users[instance.user_id] && instance.users[instance.user_id].group_id !== null ) {
         firebase.database().ref( `/messages/${instance.users[instance.user_id].group_id}` ).push({
           user_id: instance.user_id,
           text: message,

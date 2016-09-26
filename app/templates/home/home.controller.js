@@ -3,6 +3,7 @@
 
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
+var strtotime = require( '../../../node_modules/locutus/php/datetime/strtotime' );
 var dialogPolyfill = require( '../../../node_modules/dialog-polyfill/dialog-polyfill' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
 require( '../../../public/js/sweetalert.min' );
@@ -13,10 +14,10 @@ angular
   .controller( 'HomeController', homeController );
   
   
-homeController.$inject = ['Firebase', '$timeout', '$document', '$window'];
+homeController.$inject = ['Firebase', '$timeout', '$document', '$window', '$http'];
 
 
-function homeController( Firebase, $timeout, $document, $window ) {
+function homeController( Firebase, $timeout, $document, $window, $http ) {
   
   var vm = this;
   vm.Firebase = Firebase.init();
@@ -107,15 +108,31 @@ function homeController( Firebase, $timeout, $document, $window ) {
   // Chat stuff
   
   // Workaround for scrolling to bottom when group is loaded but not at any other moment
-  Firebase.addOnMessageLoaded( function callback () {
+  Firebase.addOnMessagesFirstLoaded( function callback () {
     $timeout( function scrollToBottomOnStart () {
-      var t = new Date().getTime();
-      if ( Firebase.last_message_loaded === -1 || t - Firebase.last_message_loaded < 100 ) {
-        Firebase.setLastMessageLoaded( t );
-        jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).prop( 'scrollHeight' ) );
-      }
-    }, 0 );
+      jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).prop( 'scrollHeight' ) );
+    });
   });
+  
+  // Lets detect when we are at the top and load more messages
+  jQuery( '#messages_list' ).scroll( function onScroll() {
+    var pos = jQuery( '#messages_list' ).scrollTop();
+    if ( pos === 0 ) {
+      // Maybe this was triggered when there were no messages, if thats the cae, we will ignore it
+      if ( jQuery( '#messages_list > div' ).length === 0 ) {
+        return;
+      }
+      // First, lets keep a reference to the element where the scroll must be left
+      var eId = jQuery( '#messages_list > div:first' ).attr( 'id' );
+      Firebase.loadMoreMessages( function gotToCurrentMessage () {
+        $timeout( function gotToCurrentMessageNow () {
+          // Then wi will scroll to that message
+          jQuery( '#messages_list' ).scrollTop( jQuery( '#messages_list' ).scrollTop() - jQuery( '#messages_list' ).offset().top + jQuery( `#${eId}` ).offset().top );
+        });
+      });
+    }
+  });
+
   
   vm.sendMessage = function sendMessage ( m ) {
     vm.new_message = ''; // For not losing focus when pressing enter
@@ -148,12 +165,18 @@ function homeController( Firebase, $timeout, $document, $window ) {
     dialog.close();
   };
   
+  vm.lastMessageLoadedOn = -1;
+  
   vm.downloadLogFile = function downloadLogFile () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
     }
     
-    var groupId = vm.Firebase.users[vm.Firebase.user_id].group_id;
+    // Lets load all the messages
+    Firebase.loadAllMessages( strtotime( date( `${vm.from} 00:00:00` ) ) * 1000, strtotime( date( `${vm.to} 23:59:59` ) ) * 1000, vm.downloadLogNow );
+  };
+  
+  vm.downloadLogNow = function downloadLogNow( messages ) {
     var escapeString = function escapeString ( s ) {
       var innerValue = ( s === null ) ? '' : s.toString();
       var result = innerValue.replace( /"/g, '""' );
@@ -164,11 +187,9 @@ function homeController( Firebase, $timeout, $document, $window ) {
     };
             
     var lineArray = [];
-    angular.forEach( vm.Firebase.messages[groupId], function forEach ( d ) {
+    angular.forEach( messages, function forEach ( d ) {
       var t = date( 'Y-m-d H:i:s', new Date( d.when ) );
-      if ( t >= `${vm.from} 00:00:00` && t <= `${vm.to} 23:59:59` ) {
-        lineArray.push( `${t},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
-      }
+      lineArray.push( `${t},${escapeString( Firebase.users[d.user_id].name )},${escapeString( d.text )}` );
     });
     var csvContent = lineArray.join( '\n' );
 
@@ -306,6 +327,10 @@ function homeController( Firebase, $timeout, $document, $window ) {
       
       Firebase.addUser( Firebase.users[Firebase.user_id].group_id, inputValue );
       swal( 'User invited', 'The person behind that email address has been invited.', 'success' );
+
+      Firebase.getToken( function onTokenGot ( idToken ) {
+        $http.post( '/send_invitation', {idToken: idToken, email: inputValue});
+      });
     });
   };
   

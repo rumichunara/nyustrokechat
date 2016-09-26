@@ -57,13 +57,13 @@
   },
   "scripts": {
     "set-up": "bower install && mkdir -p public/js public/css public/img && npm run dev",
-    "start": "node bs.js",
+    "start": "node app.js",
     "ci": "npm run js:ci -s && npm run styles:ci -s",
     "dev": "npm run config:dev && npm run js:dev && npm run styles:dev && npm run templates:dev",
     "staging": "npm run config:staging && npm run js:build && npm run styles:build && npm run templates:build",
     "build": "npm run config:build && npm run js:build && npm run styles:build && npm run templates:build",
     "watch": "npm run dev && npm-run-all -p js:watch styles:watch templates:watch config:watch",
-    "js:ci": "eslint app/\\*.js app/\\*\\*/\\*.js",
+    "js:ci": "eslint app.js app/\\*.js app/\\*\\*/\\*.js",
     "js": "npm run js:dev",
     "js:dev": "gulp js:dev",
     "js:build": "gulp js:build",
@@ -84,9 +84,13 @@
   },
   "dependencies": {
     "angular-ui-router": "~0.2.18",
+    "body-parser": "^1.15.2",
     "dialog-polyfill": "^0.4.4",
+    "express": "^4.14.0",
+    "firebase": "^3.4.0",
     "jquery": "^3.1.0",
     "material-design-lite": "^1.2.0",
-    "moment": "^2.15.1"
+    "moment": "^2.15.1",
+    "postmark": "^1.2.1"
   }
 }
