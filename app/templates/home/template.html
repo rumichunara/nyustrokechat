@@ -153,7 +153,7 @@
           </div>
           <div class="new" ng-show="vm.Firebase.users[vm.Firebase.user_id].group_id">
             <textarea placeholder="Type here..." ng-model="vm.new_message" ng-keypress="vm.messageKeypressed($event)"></textarea>
-            <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.sendMessage(new_message)" ng-disabled="vm.sending_message">
+            <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.sendMessageNotLosingFocus($event)" ng-disabled="vm.sending_message">
               <i class="material-icons">send</i>
             </button>
           </div>

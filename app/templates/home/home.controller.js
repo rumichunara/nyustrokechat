@@ -143,12 +143,16 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
     });
   };
   
+  vm.sendMessageNotLosingFocus = function sendMessageNotLosingFocus ( e ) {
+    var m = vm.new_message; // For not losing focus when pressing enter
+    vm.new_message = ''; // For not losing focus when pressing enter
+    vm.sendMessage( m );
+    e.preventDefault(); // For not losing focus when pressing enter
+  };
+  
   vm.messageKeypressed = function messageKeypressed ( e ) {
     if ( e.code === 'Enter' ) {
-      var m = vm.new_message; // For not losing focus when pressing enter
-      vm.new_message = ''; // For not losing focus when pressing enter
-      vm.sendMessage( m );
-      e.preventDefault(); // For not losing focus when pressing enter
+      vm.sendMessageNotLosingFocus( e );
     }
   };
   
