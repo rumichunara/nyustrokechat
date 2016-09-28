@@ -1,3 +1,9 @@
+$new-height: 64px;
+
+.admin > .list {
+  margin-top: $new-height;
+}
+
 .admin {
   $tabs-height: 49px;
   $search-height: 67px;
