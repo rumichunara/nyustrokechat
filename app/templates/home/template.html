@@ -32,9 +32,9 @@
         <a ng-show="vm.is_mobile" class="mdl-navigation__link" href="" ng-click="vm.mobileShow('ChatMessages')"><i class="material-icons">question_answer</i> Show chat messages</a>
         <a ng-show="vm.is_mobile" class="mdl-navigation__link" href="" ng-click="vm.mobileShow('ChatMembers')"><i class="material-icons">people_outline</i> Show chat members</a>
         
-        <a class="mdl-navigation__link {{ (vm.is_mobile) ? 'separate' : '' }}" href=""><i class="material-icons">feedback</i> Support</a>
-        <a class="mdl-navigation__link" href=""><i class="material-icons">lock</i> Privacy Policy</a>
-        <a class="mdl-navigation__link" href=""><i class="material-icons">description</i> Terms of Use</a>
+        <a class="mdl-navigation__link {{ (vm.is_mobile) ? 'separate' : '' }}" href="mailto:nyustrokefriends@gmail.com" target="_blank"><i class="material-icons">feedback</i> Support</a>
+        <a class="mdl-navigation__link" href=""><i class="material-icons">description</i> Consent Form</a>
+        <a class="mdl-navigation__link" href=""><i class="material-icons">info</i> About Us</a>
 
         <a class="mdl-navigation__link separate" href="" ng-click="vm.broadcastMessage()" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin"><i class="material-icons">send</i> Broadcast message</a>
         
