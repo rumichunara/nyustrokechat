@@ -29,6 +29,11 @@
             <span class="mdl-textfield__error">{{ vm.error_confirm_password }}</span>
           </div>
           
+          <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect keepmepsignedin" for="checkbox-sign-in">
+            <input type="checkbox" id="checkbox-sign-in" class="mdl-checkbox__input" checked ng-true-value="1" ng-false-value="0" ng-model="vm.keep_me_signed_in">
+            <span class="mdl-checkbox__label">Keep me signed in</span>
+          </label>
+          
           <a class="option link" href="" ng-show="vm.state === 'registering'" target="_blank">
             Read Terms of Use
           </a>

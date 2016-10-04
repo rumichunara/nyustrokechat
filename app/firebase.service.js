@@ -1,4 +1,5 @@
 /*eslint max-nested-callbacks: 1*/
+/*eslint angular/document-service: 0*/
 
 
 angular
@@ -22,6 +23,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     last_message_loaded: -1,
     possible_full_name: '',
     user_loaded_times: 0,
+    user_fully_loaded: false,
     
     messages_to_load: 100,
     messages_to_load_step: 100,
@@ -72,7 +74,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
               if ( instance.user_loaded_times === 0 ) {
                 instance.user_loaded_times += 1;
                 
-                // First, lets check he really had an entry in 'users', if not, then hemust have one in 'invited', if not, out!
+                // First, lets check he really had an entry in 'users', if not, then he must have one in 'invited', if not, out!
                 if ( userVal === null ) {
                   var possible = $window.btoa( user.email );
                   var r = firebase.database().ref( `/invited/${possible}` );
@@ -102,6 +104,22 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
                     });
                   });
                 } else {
+                  // He already exists, he is entering, lets check he wanted to stay logged in
+                  var isCookieLoggedIn = false;
+                  var cookies = document.cookie.split( ';' );
+                  for ( var i = 0; i < cookies.length; i++ ) {
+                    if ( cookies[i].trim() === 'logged=1' ) {
+                      isCookieLoggedIn = true;
+                    }
+                  }
+                      
+                  if ( ( angular.isUndefined( userVal.stay ) || !userVal.stay ) && !isCookieLoggedIn ) {
+                    // If there is no specific instruction to stay in and there is no session cookie then we must log him out
+                    firebase.auth().signOut();
+                    document.cookie = '';
+                    return;
+                  }
+                  
                   // Let's get the user's group data
                   instance.getGroupData( instance.users[instance.user_id].group_id, 
                     instance.loadMessagesTheFirstTime );
@@ -112,6 +130,8 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
                     instance.getAllGroups();
                   }
                 }
+                
+                instance.user_fully_loaded = true;
               }
             }, true );
           }
@@ -142,14 +162,26 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
         });
     },
     
-    signInWithEmailAndPassword: function signInWithEmailAndPassword( email, password, callback ) {
-      firebase.auth().signInWithEmailAndPassword( email, password ).catch( function onerror( error ) {
-        $timeout( function timeout() {
-          if ( angular.isFunction( callback ) ) {
-            callback( error );
-          }
+    signInWithEmailAndPassword: function signInWithEmailAndPassword( email, password, keepMeSignedIn, callback ) {
+      firebase.auth().signInWithEmailAndPassword( email, password )
+        .then( function onresolved( user ) {
+          $timeout( function timeout() {
+            if ( keepMeSignedIn === 1 ) {
+              // If the user wants to keep signed in then lets save this in the cookie for being saved in the user later
+              firebase.database().ref( `/users/${user.uid}` ).update({ stay: true });
+            } else {
+              firebase.database().ref( `/users/${user.uid}` ).update({ stay: false });
+            }
+            // Let's create the cookie for not being logged out
+            document.cookie = 'logged=1; path=/';
+          });
+        }, function onerror( error ) {
+          $timeout( function timeout() {
+            if ( angular.isFunction( callback ) ) {
+              callback( error );
+            }
+          });
         });
-      });
     },
     
     sendPasswordResetEmail: function sendPasswordResetEmail( email, callbackSuccess, callbackError ) {

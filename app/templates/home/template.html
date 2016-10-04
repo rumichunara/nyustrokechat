@@ -1,5 +1,5 @@
 <div ng-controller="HomeController as vm">
-  <div ng-show="vm.Firebase.user_id != null" class="chat mdl-layout mdl-js-layout">
+  <div ng-show="vm.Firebase.user_id != null && vm.Firebase.user_fully_loaded" class="chat mdl-layout mdl-js-layout">
     
     <!-- Profile -->
     <div class="mdl-layout__drawer {{ (vm.my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (vm.my_profile_visible) ? 'true' : 'false' }}">
