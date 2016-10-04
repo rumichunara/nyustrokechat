@@ -96,7 +96,7 @@
               </div>
               <div class="mdl-tabs__panel groups" id="groups-panel">
                 <div class="list">
-                  <div ng-repeat="g in vm.Firebase.groups | searchByName:vm.search" class="group">
+                  <div ng-repeat="g in vm.Firebase.groups_array | orderBy:'name' | searchByName:vm.search" class="group">
                     <div class="name">
                       <a href="" ng-click="vm.selectGroup(g.group_id)">{{ g.name }}</a>
                       <span>{{ g.members_count }}/{{ vm.Firebase.max_members_per_group }}</span>
@@ -118,7 +118,7 @@
         
          <!-- Messages panel -->
         <div ng-show="(vm.is_mobile && vm.mobile_show === 'ChatMessages') || !vm.is_mobile" class="messages mdl-cell mdl-cell--{{ (!vm.Firebase.users[vm.Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
-          <div class="head {{ (vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : 'is_regular' }}">
+          <div class="head {{ (vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : 'is_regular' }} tools">
             {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
             
             <button ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" id="menu-group" class="mdl-button mdl-js-button mdl-button--icon menu-group">

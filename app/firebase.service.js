@@ -15,6 +15,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     user_id: null,
     users: {},
     groups: {},
+    groups_array: [],
     messages: {},
     
     max_members_per_group: 6,
@@ -459,7 +460,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
           var v = s.val();
           
           if ( v === null ) { // deleted
-            delete instance.groups[groupId];
+            instance.removeGroupLocally( groupId );
             if ( angular.isDefined( instance.messages[groupId]) ) {
               delete instance.messages[groupId];
             }
@@ -468,7 +469,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
           }
           
           // From its data let's get what interests us
-          instance.groups[groupId] = v;
+          instance.addGroupLocally( groupId, v );
           instance.groups[groupId].members_count = 0;
           
           angular.forEach( instance.groups[groupId].members, function forEachGroup( userId ) {
@@ -501,8 +502,30 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.database().ref( `/groups/${groupId}` ).update({ name: inputValue });
     },
     
+    addGroupLocally: function addGroupLocally ( groupId, group ) {
+      instance.groups[groupId] = group;
+      var alreadyIn = false;
+      angular.forEach( instance.groups_array, function foreach ( g ) {
+        if ( g.group_id === groupId ) {
+          alreadyIn = true;
+        }
+      });
+      if ( !alreadyIn ) {
+        instance.groups_array.push( instance.groups[groupId]);
+      }
+    },
+    
     removeGroupLocally: function removeGroupLocally ( groupId ) {
       delete instance.groups[groupId];
+      var i = -1;
+      angular.forEach( instance.groups_array, function foreach ( group, index ) {
+        if ( group.group_id === groupId ) {
+          i = index;
+        }
+      });
+      if ( i !== -1 ) {
+        instance.groups_array.splice( i, 1 );
+      }
     },
     
     selectGroup: function selectGroup ( groupId ) {

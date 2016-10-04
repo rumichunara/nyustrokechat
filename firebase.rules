@@ -33,6 +33,7 @@
     "messages": {
       "$group_id": {
         ".read": "auth != null && root.child('users').child(auth.uid).exists() && ((root.child('users').child(auth.uid).child('admin').val() == true) || (root.child('users').child(auth.uid).child('group_id').val() == $group_id))",
+        ".write": "auth != null && root.child('users').child(auth.uid).exists() && (root.child('users').child(auth.uid).child('admin').val() == true)",
         
         "$message_id": {
           ".write": "auth != null && root.child('users').child(auth.uid).exists() && ((root.child('users').child(auth.uid).child('admin').val() == true) || (root.child('users').child(auth.uid).child('group_id').val() == $group_id && newData.child('user_id').val() == auth.uid)) && newData.exists()",
