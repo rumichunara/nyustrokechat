@@ -12,6 +12,7 @@ function authenticationController( $scope, Firebase ) {
   vm.terms_read = false;
   vm.in_progress = false;
   vm.success_message = '';
+  vm.keep_me_signed_in = 1;
   
   // Initialization
   vm.Firebase = Firebase.init();
@@ -43,7 +44,7 @@ function authenticationController( $scope, Firebase ) {
         swal( 'Please specify a name', 'Please specify your full name.', 'error' );
       } else if ( vm.password === vm.confirm_password ) {
         Firebase.setPossibleFullName( vm.full_name );
-        Firebase.createUserWithEmailAndPassword( vm.email, vm.password, function callback( error ) {
+        Firebase.createUserWithEmailAndPassword( vm.email, vm.password, vm.keep_me_signed_in, function callback( error ) {
           if ( error.code === 'auth/weak-password' ) {
             vm.error_password = error.message;
           } else {
@@ -57,7 +58,7 @@ function authenticationController( $scope, Firebase ) {
       }
       
     } else if ( vm.state === 'signing_in' ) {
-      Firebase.signInWithEmailAndPassword( vm.email, vm.password, function callback( error ) {
+      Firebase.signInWithEmailAndPassword( vm.email, vm.password, vm.keep_me_signed_in, function callback( error ) {
         if ( error.code === 'auth/wrong-password' ) {
           vm.error_password = error.message;
         } else {

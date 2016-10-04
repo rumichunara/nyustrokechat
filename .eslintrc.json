@@ -47,8 +47,8 @@
         "props": true
       }
     ],
-    "complexity": [ 2, 5 ],
-    "max-depth": [2, 3],
+    "complexity": [ 2, 8 ],
+    "max-depth": [2, 4],
     "max-len": [1, 105, 4],
     "max-nested-callbacks": [2, 3],
     "max-params": [2, 5],
