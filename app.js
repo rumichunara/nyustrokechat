@@ -65,6 +65,11 @@ app.post( '/send_invitation', function onRequest ( req, res ) {
 });
 
 
+// Redirect if there is a direct access to /authenticate
+app.get( '/authenticate', function( req, res ) {
+  res.redirect( '/' );
+});
+
 // Let's start listening
 app.listen( 8000, function onListening () { 
   console.log( 'NYU Chat app running...' );
