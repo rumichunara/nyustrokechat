@@ -66,7 +66,7 @@ app.post( '/send_invitation', function onRequest ( req, res ) {
 
 
 // Redirect if there is a direct access to /authenticate
-app.get( '/authenticate', function( req, res ) {
+app.get( '/authenticate', function authenticate ( req, res ) {
   res.redirect( '/' );
 });
 
