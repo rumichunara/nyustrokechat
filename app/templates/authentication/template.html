@@ -20,7 +20,7 @@
           <div class="mdl-textfield mdl-js-textfield {{ (vm.error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
             <input class="mdl-textfield__input" type="password" id="password" ng-model="vm.password">
             <label class="mdl-textfield__label" for="password">Password</label>
-            <span class="mdl-textfield__error">{{ vm.error_password }}</span>
+            <span class="mdl-textfield__error {{ (vm.error_password != '') ? 'show-error' : '' }}">{{ vm.error_password }}</span>
           </div>
           
           <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_confirm_password != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'registering'">

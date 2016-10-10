@@ -113,4 +113,8 @@
     border-color: $orange;
     background-color: $orange;
   }
+
+  .mdl-textfield__error.show-error {
+    visibility: visible;
+  }
 }
