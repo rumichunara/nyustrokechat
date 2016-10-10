@@ -64,6 +64,7 @@
 
   .option.have_read {
     margin: 10px 0;
+    text-align: left;
   }
 
   a.option {
@@ -74,6 +75,7 @@
   a.option.link {
     text-decoration: none;
     color: $blue;
+    text-align: left;
   }
 
   .mdl-checkbox__box-outline {
