@@ -189,3 +189,11 @@ $new-height: 64px;
     display: none;
   }
 }
+
+.mdl-dialog.download-log {
+  width: fit-content;
+
+  table.calendar-holder > tbody > tr > td:first-child {
+    padding-right: 45px;
+  }
+}
