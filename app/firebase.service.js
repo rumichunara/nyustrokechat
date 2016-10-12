@@ -304,6 +304,8 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
           if ( angular.isFunction( onEveryValueChange ) ) {
             onEveryValueChange( v );
           }
+          
+          instance.updateLocalGroups();
 
           instance.redrawMdLite();
           // We are not doing "r.off();" because we want to update every time the user data changes
@@ -560,6 +562,13 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       }
     },
     
+    updateLocalGroups: function updateLocalGroups () {
+      instance.groups_array = [];
+      angular.forEach( instance.groups, function foreach ( group ) {
+        instance.groups_array.push( group );
+      });
+    },
+    
     selectGroup: function selectGroup ( groupId ) {
       firebase.database().ref( `/users/${instance.user_id}` ).update({ group_id: groupId });
     },
@@ -574,6 +583,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.database().ref( `/users/${instance.user_id}` ).update({ group_id: null });
       firebase.database().ref( `/groups/${groupId}` ).remove();
       firebase.database().ref( `/messages/${groupId}` ).remove();
+      $timeout( instance.updateLocalGroups, 400 );
     },
     
     getAllGroups: function getAllGroups() {
@@ -619,11 +629,23 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       instance._removeUserFromAnyOtherGroup( userId );
       firebase.database().ref( `/users/${userId}` ).update({ group_id: groupId });
       firebase.database().ref( `/groups/${groupId}/members` ).push( userId );
+      $timeout( instance.updateLocalGroups, 400 );
     },
     
     removeUserFromGroup: function removeUserFromGroup ( userId ) {
       instance._removeUserFromAnyOtherGroup( userId );
       firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+      $timeout( instance.updateLocalGroups, 400 );
+    },
+    
+    removeAllUsersFromGroup: function removeAllUsersFromGroup () {
+      // We are removing all the users from the current group
+      var groupId = instance.users[instance.user_id].group_id;
+      angular.forEach( instance.groups[groupId].members, function forEach ( userId ) {
+        firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+      });
+      firebase.database().ref( `/groups/${groupId}/members` ).set([]);
+      $timeout( instance.updateLocalGroups, 400 );
     },
     
     // UI Stuff

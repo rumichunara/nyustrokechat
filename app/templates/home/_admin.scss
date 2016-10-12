@@ -92,10 +92,20 @@ $new-height: 64px;
         }
       }
 
-      .add {
-        position: absolute;
-        bottom: 16px;
-        right: 16px;
+      @media (max-width: 839px) {
+        .add {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+        }
+      }
+
+      @media (min-width: 840px) {
+        .add {
+          position: fixed;
+          bottom: 16px;
+          left: calc(16.6666667% - 56px - 21px);
+        }
       }
     }
   }
@@ -147,10 +157,20 @@ $new-height: 64px;
         }
       }
 
-      .add {
-        position: absolute;
-        bottom: 16px;
-        right: 16px;
+      @media (max-width: 839px) {
+        .add {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+        }
+      }
+
+      @media (min-width: 840px) {
+        .add {
+          position: fixed;
+          bottom: 16px;
+          left: calc(16.6666667% - 56px - 21px);
+        }
       }
     }
   }

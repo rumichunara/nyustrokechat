@@ -67,12 +67,6 @@
     position: fixed;
     top: 0;
 
-    .menu-group {
-      position: absolute;
-      right: 20px;
-      top: 16px;
-    }
-
     @media (max-width: 839px) {
       &.is_admin {
         padding-left: 72px;
@@ -168,7 +162,7 @@
     background-color: #F5F5F5;
 
     .head.is_admin.tools {
-      width: calc(100% - 479px);
+      width: 66.6666667%;
 
       @media (max-width: 839px) {
         width: 100%;
@@ -262,17 +256,11 @@
     }    
   }
 
-  .more-options-1 {
-    color: $white;
-    position: absolute;
-    right: 65px;
-    top: 16px;
-  }
 
-  .more-options-2 {
-    color: $white;
+  .operations {
     position: absolute;
-    right: 115px;
+    right: 20px;
     top: 16px;
+    background-color: $deeppurple;
   }
 }

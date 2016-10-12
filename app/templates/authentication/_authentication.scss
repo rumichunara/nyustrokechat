@@ -64,6 +64,7 @@
 
   .option.have_read {
     margin: 10px 0;
+    text-align: left;
   }
 
   a.option {
@@ -74,6 +75,7 @@
   a.option.link {
     text-decoration: none;
     color: $blue;
+    text-align: left;
   }
 
   .mdl-checkbox__box-outline {
@@ -97,5 +99,22 @@
   .keepmepsignedin {
     color: $white;
     margin-top: 20px;
+  }
+
+  .mdl-textfield__error {
+    color: $orange;
+  }
+
+  .mdl-textfield.is-invalid .mdl-textfield__input {
+    border-color: $orange;
+  }
+
+  .mdl-textfield.is-invalid .mdl-textfield__label:after {
+    border-color: $orange;
+    background-color: $orange;
+  }
+
+  .mdl-textfield__error.show-error {
+    visibility: visible;
   }
 }
