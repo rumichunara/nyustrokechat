@@ -41,6 +41,7 @@ function authenticationController( $scope, Firebase ) {
     if ( vm.state === 'registering' ) {
       if ( vm.full_name === '' ) {
         swal( 'Please specify a name', 'Please specify your full name.', 'error' );
+        vm.in_progress = false;
       } else if ( vm.password === vm.confirm_password ) {
         Firebase.setPossibleFullName( vm.full_name );
         Firebase.createUserWithEmailAndPassword( vm.email, vm.password, vm.keep_me_signed_in, function callback( error ) {
