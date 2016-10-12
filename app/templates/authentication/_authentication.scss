@@ -117,4 +117,8 @@
   .mdl-textfield__error.show-error {
     visibility: visible;
   }
+
+  .mdl-textfield.is-dirty .mdl-textfield__label {
+    visibility: visible;
+  }
 }
