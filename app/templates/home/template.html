@@ -88,6 +88,8 @@
                       <li class="mdl-menu__item" ng-click="vm.addUserToCurrentGroup(u.user_id)">Add to current group</li>
                       <li class="mdl-menu__item" ng-click="vm.removeUser(u.user_id)">Remove from the app</li>
                     </ul>
+                  </div>                  
+                  <div class="dummy">
                   </div>
                   <button class="add mdl-button mdl-js-button mdl-button--fab mdl-button--colored" ng-click="vm.addUser()">
                     <i class="material-icons">add</i>
@@ -106,6 +108,8 @@
                         <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}')"></div>
                       </div>
                     </div>
+                  </div>
+                  <div class="dummy">
                   </div>
                   <button class="add mdl-button mdl-js-button mdl-button--fab mdl-button--colored" ng-click="vm.addGroup()">
                     <i class="material-icons">add</i>
