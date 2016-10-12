@@ -305,8 +305,6 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
             onEveryValueChange( v );
           }
           
-          instance.updateLocalGroups();
-
           instance.redrawMdLite();
           // We are not doing "r.off();" because we want to update every time the user data changes
         });
@@ -503,7 +501,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
           }
           
           // From its data let's get what interests us
-          instance.addGroupLocally( groupId, v );
+          instance.addOrUpdateGroupLocally( groupId, v );
           instance.groups[groupId].members_count = 0;
           
           angular.forEach( instance.groups[groupId].members, function forEachGroup( userId ) {
@@ -536,30 +534,14 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.database().ref( `/groups/${groupId}` ).update({ name: inputValue });
     },
     
-    addGroupLocally: function addGroupLocally ( groupId, group ) {
+    addOrUpdateGroupLocally: function addOrUpdateGroupLocally ( groupId, group ) {
       instance.groups[groupId] = group;
-      var alreadyIn = false;
-      angular.forEach( instance.groups_array, function foreach ( g ) {
-        if ( g.group_id === groupId ) {
-          alreadyIn = true;
-        }
-      });
-      if ( !alreadyIn ) {
-        instance.groups_array.push( instance.groups[groupId]);
-      }
+      instance.updateLocalGroups();
     },
     
     removeGroupLocally: function removeGroupLocally ( groupId ) {
       delete instance.groups[groupId];
-      var i = -1;
-      angular.forEach( instance.groups_array, function foreach ( group, index ) {
-        if ( group.group_id === groupId ) {
-          i = index;
-        }
-      });
-      if ( i !== -1 ) {
-        instance.groups_array.splice( i, 1 );
-      }
+      instance.updateLocalGroups();
     },
     
     updateLocalGroups: function updateLocalGroups () {
@@ -583,7 +565,6 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.database().ref( `/users/${instance.user_id}` ).update({ group_id: null });
       firebase.database().ref( `/groups/${groupId}` ).remove();
       firebase.database().ref( `/messages/${groupId}` ).remove();
-      $timeout( instance.updateLocalGroups, 400 );
     },
     
     getAllGroups: function getAllGroups() {
@@ -629,13 +610,11 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       instance._removeUserFromAnyOtherGroup( userId );
       firebase.database().ref( `/users/${userId}` ).update({ group_id: groupId });
       firebase.database().ref( `/groups/${groupId}/members` ).push( userId );
-      $timeout( instance.updateLocalGroups, 400 );
     },
     
     removeUserFromGroup: function removeUserFromGroup ( userId ) {
       instance._removeUserFromAnyOtherGroup( userId );
       firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
-      $timeout( instance.updateLocalGroups, 400 );
     },
     
     removeAllUsersFromGroup: function removeAllUsersFromGroup () {
@@ -645,7 +624,6 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
         firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
       });
       firebase.database().ref( `/groups/${groupId}/members` ).set([]);
-      $timeout( instance.updateLocalGroups, 400 );
     },
     
     // UI Stuff
