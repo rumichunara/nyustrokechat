@@ -119,7 +119,9 @@
          <!-- Messages panel -->
         <div ng-show="(vm.is_mobile && vm.mobile_show === 'ChatMessages') || !vm.is_mobile" class="messages mdl-cell mdl-cell--{{ (!vm.Firebase.users[vm.Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
           <div class="head {{ (vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : 'is_regular' }} tools">
-            {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
+            <div class="name">
+              {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
+            </div>
             
             <div class="operations" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin">
                 <button ng-click="vm.downloadLog()" class="mdl-button mdl-js-button mdl-button--icon">
