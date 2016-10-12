@@ -238,6 +238,7 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
   
   vm.selectGroup = function selectGroup( groupId ) {
     Firebase.selectGroup( groupId );
+    vm.mobileShow( 'ChatMessages' );
   };
   
   
