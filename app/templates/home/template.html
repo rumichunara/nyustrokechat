@@ -194,19 +194,27 @@
     <!-- Download Log !-->
     <dialog class="mdl-dialog download-log">
       <div class="mdl-dialog__content">
+        
         <p>
           Select the period to download
         </p>
         
-        <div>
-          From
-          <input ng-model='vm.from' type='text' placeholder='From' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true">
-        </div>
-
-        <div>
-          To
-          <input ng-model='vm.to' type='text' placeholder='To' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true" >
-        </div>
+        <table class="calendar-holder">
+          <tr>
+            <td>
+              <div>
+                From
+                <input ng-model='vm.from' type='text' placeholder='From' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true">
+              </div>
+            </td>
+            <td>
+              <div>
+                To
+                <input ng-model='vm.to' type='text' placeholder='To' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true" >
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
       <div class="mdl-dialog__actions">
         <button type="button" class="mdl-button" ng-click="vm.downloadLogFile()">Download</button>
