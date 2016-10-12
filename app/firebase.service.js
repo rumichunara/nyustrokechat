@@ -614,7 +614,10 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
     
     removeUserFromGroup: function removeUserFromGroup ( userId ) {
       instance._removeUserFromAnyOtherGroup( userId );
-      firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+      // If he is the admin then he still be working on this group
+      if ( userId !== instance.user_id ) {
+        firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+      }
     },
     
     removeAllUsersFromGroup: function removeAllUsersFromGroup () {
