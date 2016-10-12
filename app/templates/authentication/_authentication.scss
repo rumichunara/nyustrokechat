@@ -10,10 +10,11 @@
   background-size: cover;
 
   .form {
-    transform: translateY(-50%) translateX(-50%);
+    transform: translateX(-50%);
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 50%;
+    margin-top: 10%;
 
     .success {
       color: $white;
