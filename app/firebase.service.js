@@ -626,6 +626,19 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       firebase.database().ref( `/groups/${groupId}/members` ).set([]);
     },
     
+    groupExists: function groupExists ( groupName, groupIdToIgnore ) {
+      var exists = false;
+      angular.forEach( instance.groups, function forEach ( group, groupId ) {
+        if ( angular.isDefined( groupIdToIgnore ) && groupIdToIgnore === groupId ) {
+          return;
+        }
+        if ( group.name === groupName ) {
+          exists = true;
+        }
+      });
+      return exists;
+    },
+    
     // UI Stuff
     redrawMdLite: function redrawMdLite() {
       $timeout( componentHandler.upgradeAllRegistered ); // Let's redraw all mdlite components

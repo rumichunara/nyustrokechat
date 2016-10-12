@@ -33,8 +33,8 @@
         <a ng-show="vm.is_mobile" class="mdl-navigation__link" href="" ng-click="vm.mobileShow('ChatMembers')"><i class="material-icons">people_outline</i> Show chat members</a>
         
         <a class="mdl-navigation__link {{ (vm.is_mobile) ? 'separate' : '' }}" href="mailto:nyustrokefriends@gmail.com" target="_blank"><i class="material-icons">feedback</i> Support</a>
-        <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1nUZReWeEBEiqIYleJ_FRw2KBYS6jqjklRN4s1kjhf90/edit?usp=sharing"><i class="material-icons">description</i> Consent Form</a>
-        <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1GZ8EY9_5n7XHx9J733zxnu7XfyW5IiF-S67bNtgziy0/edit?usp=sharing"><i class="material-icons">info</i> About Us</a>
+        <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1nUZReWeEBEiqIYleJ_FRw2KBYS6jqjklRN4s1kjhf90/edit?usp=sharing" target="_blank"><i class="material-icons">description</i> Consent Form</a>
+        <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1GZ8EY9_5n7XHx9J733zxnu7XfyW5IiF-S67bNtgziy0/edit?usp=sharing" target="_blank"><i class="material-icons">info</i> About Us</a>
 
         <a class="mdl-navigation__link separate" href="" ng-click="vm.broadcastMessage()" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin"><i class="material-icons">send</i> Broadcast message</a>
         
@@ -119,7 +119,9 @@
          <!-- Messages panel -->
         <div ng-show="(vm.is_mobile && vm.mobile_show === 'ChatMessages') || !vm.is_mobile" class="messages mdl-cell mdl-cell--{{ (!vm.Firebase.users[vm.Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
           <div class="head {{ (vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : 'is_regular' }} tools">
-            {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
+            <div class="name">
+              {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
+            </div>
             
             <div class="operations" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin">
                 <button ng-click="vm.downloadLog()" class="mdl-button mdl-js-button mdl-button--icon">

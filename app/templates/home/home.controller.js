@@ -208,7 +208,7 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
       text: 'Add a new group with the following name',   
       type: 'input',   
       showCancelButton: true,   
-      closeOnConfirm: true,   
+      closeOnConfirm: false,   
       inputPlaceholder: 'Group name', 
     }, 
     function response ( inputValue ) {
@@ -216,17 +216,29 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
         return false;
       }
       if ( inputValue === '' ) {
-        swal.showInputError( 'You need to write a name' );     
+        swal.showInputError( 'You need to write a name' );
+        return false;
+      }
+      
+      if ( Firebase.groupExists( inputValue ) ) {
+        swal.showInputError( 'A group with that name already exists' );     
+        return false;
+      }
+      
+      if ( inputValue.length > 90 ) {
+        swal.showInputError( 'The name must be 90 characters at most' );     
         return false;
       }
       
       Firebase.addGroup( inputValue );
+      swal.close();
     });
   };
   
   
   vm.selectGroup = function selectGroup( groupId ) {
     Firebase.selectGroup( groupId );
+    vm.mobileShow( 'ChatMessages' );
   };
   
   
@@ -236,7 +248,7 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
       text: 'Rename the group to the following',   
       type: 'input',   
       showCancelButton: true,   
-      closeOnConfirm: true,   
+      closeOnConfirm: false,   
       inputPlaceholder: 'Group name',
       inputValue: Firebase.groups[Firebase.users[Firebase.user_id].group_id].name,
     }, 
@@ -249,7 +261,18 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
         return false;
       }
       
+      if ( Firebase.groupExists( inputValue, Firebase.users[Firebase.user_id].group_id ) ) {
+        swal.showInputError( 'A group with that name already exists' );     
+        return false;
+      }
+      
+      if ( inputValue.length > 90 ) {
+        swal.showInputError( 'The name must be 90 characters at most' );     
+        return false;
+      }
+      
       Firebase.editGroupName( Firebase.users[Firebase.user_id].group_id, inputValue );
+      swal.close();
     });
   };
   

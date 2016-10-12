@@ -76,6 +76,13 @@
     &.is_regular {
       padding-left: 72px;
     }
+
+    .name {
+      height: 35px;
+      line-height: 26px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   @media screen and (max-width: 1024px) {

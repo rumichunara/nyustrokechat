@@ -37,9 +37,8 @@ function authenticationController( $scope, Firebase ) {
   
   vm.confirm = function confirm() {
     vm.in_progress = true;
+    vm.errorReset();
     if ( vm.state === 'registering' ) {
-      vm.errorReset();
-      
       if ( vm.full_name === '' ) {
         swal( 'Please specify a name', 'Please specify your full name.', 'error' );
       } else if ( vm.password === vm.confirm_password ) {
@@ -56,7 +55,6 @@ function authenticationController( $scope, Firebase ) {
         vm.error_confirm_password = 'The password and its confirmation do not match.';
         vm.in_progress = false;
       }
-      
     } else if ( vm.state === 'signing_in' ) {
       Firebase.signInWithEmailAndPassword( vm.email, vm.password, vm.keep_me_signed_in, function callback( error ) {
         if ( error.code === 'auth/wrong-password' ) {
@@ -71,6 +69,8 @@ function authenticationController( $scope, Firebase ) {
   
   vm.resetPassword = function resetPassword() {
     Firebase.sendPasswordResetEmail( vm.email, function callbackSuccess() {
+      vm.password = '';
+      vm.error_password = '';
       vm.success_message = 'An email has been sent to this address with further instructions.';
       vm.in_progress = false;
     }, function callbackError( error ) {

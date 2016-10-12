@@ -7,25 +7,25 @@
         <form action="" onsubmit="event.preventDefault()">
           <div class="mdl-textfield mdl-js-textfield" ng-show="vm.state === 'registering'">
             <input class="mdl-textfield__input" type="text" id="full_name" ng-model="vm.full_name">
-            <label class="mdl-textfield__label" for="full_name">Full Name</label>
+            <label class="mdl-textfield__label" for="full_name" ng-if="vm.full_name == ''">Full Name</label>
           </div>
           
           <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_email != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
             <input class="mdl-textfield__input" type="text" id="email" ng-model="vm.email">
-            <label class="mdl-textfield__label" for="email">Email</label>
+            <label class="mdl-textfield__label" for="email" ng-if="vm.email == ''">Email</label>
             <span class="mdl-textfield__error">{{ vm.error_email }}</span>
             <div class="success" ng-show="vm.success_message != ''">{{ vm.success_message }}</div>
           </div>
           
           <div class="mdl-textfield mdl-js-textfield {{ (vm.error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
             <input class="mdl-textfield__input" type="password" id="password" ng-model="vm.password">
-            <label class="mdl-textfield__label" for="password">Password</label>
+            <label class="mdl-textfield__label" for="password" ng-if="vm.password == ''">Password</label>
             <span class="mdl-textfield__error {{ (vm.error_password != '') ? 'show-error' : '' }}">{{ vm.error_password }}</span>
           </div>
           
           <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_confirm_password != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'registering'">
             <input class="mdl-textfield__input" type="password" id="confirm_password" ng-model="vm.confirm_password">
-            <label class="mdl-textfield__label" for="confirm_password">Confirm password</label>
+            <label class="mdl-textfield__label" for="confirm_password" ng-if="vm.confirm_password == ''">Confirm password</label>
             <span class="mdl-textfield__error">{{ vm.error_confirm_password }}</span>
           </div>
           
