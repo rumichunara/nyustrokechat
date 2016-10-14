@@ -19,9 +19,11 @@ public/*
 !public/js/bootstrap-datetimepicker.js
 !public/js/filesaver.min.js
 !public/js/sweetalert.min.js
+!public/js/material-modal.js
 !public/css/bootstrap-datetimepicker.css
 !public/css/sweetalert.css
 !public/css/sweetalert-override.css
+!public/css/material-modal.css
 !public/css/fonts/glyphicons.css
 !public/css/fonts/glyphicons-halflings-regular.eot
 !public/css/fonts/glyphicons-halflings-regular.svg

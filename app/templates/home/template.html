@@ -36,7 +36,7 @@
         <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1nUZReWeEBEiqIYleJ_FRw2KBYS6jqjklRN4s1kjhf90/edit?usp=sharing" target="_blank"><i class="material-icons">description</i> Consent Form</a>
         <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1GZ8EY9_5n7XHx9J733zxnu7XfyW5IiF-S67bNtgziy0/edit?usp=sharing" target="_blank"><i class="material-icons">info</i> About Us</a>
 
-        <a class="mdl-navigation__link separate" href="" ng-click="vm.broadcastMessage()" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin"><i class="material-icons">send</i> Broadcast message</a>
+        <a class="mdl-navigation__link separate modal__trigger" data-modal="#modal_broadcast_message" href="" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin"><i class="material-icons">send</i> Broadcast message</a>
         
         <a class="mdl-navigation__link separate" href="" ng-click="vm.Firebase.signOut()"><i class="material-icons">power_settings_new</i> Sign out</a>
       </nav>
@@ -128,7 +128,7 @@
             </div>
             
             <div class="operations" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin">
-                <button ng-click="vm.downloadLog()" class="mdl-button mdl-js-button mdl-button--icon">
+                <button class="mdl-button mdl-js-button mdl-button--icon modal__trigger" data-modal="#modal_log_download">
                   <i class="material-icons">file_download</i>
                 </button>
                 
@@ -192,54 +192,80 @@
     </main>
     
     <!-- Download Log !-->
-    <dialog class="mdl-dialog download-log">
-      <div class="mdl-dialog__content">
-        
-        <p>
-          Select the period to download
-        </p>
-        
-        <table class="calendar-holder">
-          <tr>
-            <td>
-              <div>
-                From
-                <input ng-model='vm.from' type='text' placeholder='From' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true">
-              </div>
-            </td>
-            <td>
-              <div>
-                To
-                <input ng-model='vm.to' type='text' placeholder='To' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true" >
-              </div>
-            </td>
-          </tr>
-        </table>
+    <div id="modal_log_download" class="modal_log_download modal modal__bg">
+      <div class="modal__dialog">
+        <div class="modal__content">
+          <div class="modal__header">
+            <div class="modal__title">
+              <h2 class="modal__title-text">Download log</h2>
+            </div>
+          </div>
+          <div class="modal__text">
+            <p>
+              Select the period to download
+            </p>
+            <table class="calendar-holder">
+              <tr>
+                <td>
+                  <div>
+                    From
+                    <input id='download_log_from' ng-model='vm.from' type='text' placeholder='From' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true">
+                    <input ng-model='vm.from_date' type='date' placeholder='From'>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    To
+                    <input id='download_log_to' ng-model='vm.to' type='text' placeholder='To' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true" >
+                    <input ng-model='vm.to_date' type='date' placeholder='To'>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal__footer">
+            <a class="mdl-button mdl-button--colored mdl-js-button  modal__close">
+              Close
+            </a>
+            <a class="mdl-button mdl-button--colored mdl-js-button" ng-click="vm.downloadLogFile()">
+              Download
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="mdl-dialog__actions">
-        <button type="button" class="mdl-button" ng-click="vm.downloadLogFile()">Download</button>
-        <button type="button" class="mdl-button close" ng-click="vm.dontDownloadLog()">Close</button>
-      </div>
-    </dialog>
+    </div>
     
     <!-- Broadcast message !-->
-    <dialog class="mdl-dialog broadcast-message">
-      <div class="mdl-dialog__content">
-        <p>
-          Send a message to every group.
-        </p>
-        <form action="" onsubmit="event.preventDefault()">
-          <div class="mdl-textfield mdl-js-textfield">
-            <textarea class="mdl-textfield__input" type="text" rows= "3" id="broadcastmessage" ng-model="vm.new_broadcast_message" ></textarea>
-            <label class="mdl-textfield__label" for="broadcastmessage">Type here...</label>
+    <div id="modal_broadcast_message" class="broadcast-message modal modal__bg">
+      <div class="modal__dialog">
+        <div class="modal__content">
+          <div class="modal__header">
+            <div class="modal__title">
+              <h2 class="modal__title-text">Broadcast message</h2>
+            </div>
           </div>
-        </form>
+          <div class="modal__text">
+            <p>
+              Send a message to every group.
+            </p>
+            <form action="" onsubmit="event.preventDefault()">
+              <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows= "3" id="broadcastmessage" ng-model="vm.new_broadcast_message" ></textarea>
+                <label class="mdl-textfield__label" for="broadcastmessage">Type here...</label>
+              </div>
+            </form>
+          </div>
+          <div class="modal__footer">
+            <a class="mdl-button mdl-button--colored mdl-js-button  modal__close">
+              Close
+            </a>
+            <a class="mdl-button mdl-button--colored mdl-js-button modal__close" ng-click="vm.sendBroadcastMessage()">
+              Send
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="mdl-dialog__actions">
-        <button type="button" class="mdl-button" ng-click="vm.sendBroadcastMessage()">Send</button>
-        <button type="button" class="mdl-button close" ng-click="vm.dontBroadcastMessage()">Cancel</button>
-      </div>
-    </dialog>
+    </div>
     
     <div class="mdl-layout__obfuscator {{ (vm.my_profile_visible) ? 'is-visible' : '' }}" ng-click="vm.showMyProfile(false)"></div>
   </div>

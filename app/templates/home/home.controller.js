@@ -4,10 +4,9 @@
 var jQuery = require( '../../../node_modules/jquery/dist/jquery.min' );
 var date = require( '../../../node_modules/locutus/php/datetime/date' );
 var strtotime = require( '../../../node_modules/locutus/php/datetime/strtotime' );
-var dialogPolyfill = require( '../../../node_modules/dialog-polyfill/dialog-polyfill' );
 var fileSaver = require( '../../../public/js/filesaver.min' );
+var Modal = require( '../../../public/js/material-modal' );
 require( '../../../public/js/sweetalert.min' );
-
 
 angular
   .module( 'app' )
@@ -156,24 +155,16 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
     }
   };
   
-  vm.downloadLog = function downloadLog () {
-    var dialog = $document[0].querySelector( 'dialog.download-log' );
-    if ( !dialog.showModal ) {
-      dialogPolyfill.registerDialog( dialog );
-    }
-    dialog.showModal();
-  };
-  
-  vm.dontDownloadLog = function dontDownloadLog () {
-    var dialog = $document[0].querySelector( 'dialog.download-log' );
-    dialog.close();
-  };
-  
   vm.lastMessageLoadedOn = -1;
   
   vm.downloadLogFile = function downloadLogFile () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
+    }
+    
+    if ( vm.is_mobile ) {
+      vm.from = date( 'Y-m-d', vm.from_date );
+      vm.to = date( 'Y-m-d', vm.to_date );
     }
     
     // Lets load all the messages
@@ -387,32 +378,19 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
     $timeout( function timeout () {
       vm.is_mobile = ( $window.innerWidth <= 839 );
     });
+    // Lets initialize the modals
+    Modal.init();
   };
   angular.element( $window ).bind( 'load', vm.isMobileCalculate );
   angular.element( $window ).bind( 'resize', vm.isMobileCalculate );
   
   
   //Broadcast message
-  vm.broadcastMessage = function broadcastMessage () {
-    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
-    if ( !dialog.showModal ) {
-      dialogPolyfill.registerDialog( dialog );
-    }
-    dialog.showModal();
-  };
-  
-  vm.dontBroadcastMessage = function dontBroadcastMessage() {
-    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
-    dialog.close();
-  };
-  
   vm.sendBroadcastMessage = function sendBroadcastMessage () {   
     if ( !vm.Firebase.users[vm.Firebase.user_id].admin ) {
       return;
     }
     Firebase.broadastMessage( vm.new_broadcast_message );
-    var dialog = $document[0].querySelector( 'dialog.broadcast-message' );
-    dialog.close();
     vm.new_broadcast_message = '';
   };
 }

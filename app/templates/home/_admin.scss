@@ -187,10 +187,20 @@ $new-height: 64px;
   }
 }
 
-.mdl-dialog.download-log {
-  width: fit-content;
-
+.modal_log_download {
   table.calendar-holder > tbody > tr > td:first-child {
     padding-right: 45px;
+  }
+
+  @media (max-width: 839px) {
+    input[type=text], .bootstrap-datetimepicker-widget {
+      display: none;
+    }
+  }
+
+  @media (min-width: 840px) {
+    input[type=date], input[type=text] {
+      display: none;
+    }
   }
 }
