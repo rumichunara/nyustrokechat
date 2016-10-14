@@ -302,6 +302,21 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
   };
   
   
+  vm.removeAllUsersFromGroup = function removeAllUsersFromGroup () {
+    swal({
+      title: 'Remove all users from current group',   
+      text: 'Are you sure? This action can\'t be undone',   
+      type: 'warning',   
+      showCancelButton: true,   
+      closeOnConfirm: true,
+      confirmButtonText: 'Yes, remove them',
+    }, 
+    function response () {
+      Firebase.removeAllUsersFromGroup();
+    });
+  };
+  
+  
   vm.removeUser = function removeUser( userId ) {
     swal({
       title: 'Delete user',   
