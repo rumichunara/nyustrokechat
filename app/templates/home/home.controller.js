@@ -358,12 +358,12 @@ function homeController( Firebase, $timeout, $document, $window, $http ) {
         return false;
       }
       if ( inputValue === '' ) {
-        swal.showInputError( 'You need to write an email address' );     
+        swal.showInputError( 'Invalid email address' );     
         return false;
       }
       
       if ( !vm.validEmail( inputValue ) ) {
-        swal.showInputError( 'You need to write a valid email address' ); 
+        swal.showInputError( 'Invalid email address' ); 
         return false;
       }
       
