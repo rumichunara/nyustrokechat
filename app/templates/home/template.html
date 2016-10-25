@@ -1,0 +1,246 @@
+<div ng-controller="HomeController as vm">
+  <div ng-show="vm.Firebase.user_id != null && vm.Firebase.user_fully_loaded" class="chat mdl-layout mdl-js-layout">
+    
+    <!-- Profile -->
+    <div class="mdl-layout__drawer {{ (vm.my_profile_visible) ? 'is-visible' : '' }} my_profile" aria-hidden="{{ (vm.my_profile_visible) ? 'true' : 'false' }}">
+      <div class="presentation">
+        <div class="title">
+          MY PROFILE
+          <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.toggleEditProfile()">
+            <i class="material-icons">edit</i>
+          </button>
+        </div>
+        
+        <div class="profile_picture">
+          <div ng-if="vm.Firebase.user_id && vm.Firebase.users[vm.Firebase.user_id]" class="picture_container" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[vm.Firebase.user_id]) }}')" >
+          </div>
+            
+          <div ng-show="vm.editing_profile" class="edit"><a href="" ng-click="vm.selectProfilePicture()">edit</a></div>
+          
+          <form action="">
+            <input id="profile_picture_file" type="file" accept="image/*,capture=camera" onchange="angular.element(this).scope().vm.uploadProfilePicture(event)">
+          </form>
+          
+        </div>
+       
+        <div ng-show="!vm.editing_profile" class="name">{{ (vm.Firebase.users[vm.Firebase.user_id].name != '') ? vm.Firebase.users[vm.Firebase.user_id].name : '[edit your name]' }}</div>
+        <input ng-show="vm.editing_profile" type="text" class="mdl-textfield__input name" ng-model="vm.Firebase.users[vm.Firebase.user_id].name" placeholder="Type here..." ng-keypress="vm.editProfileConfirm($event)">
+        <div class="email">{{ vm.Firebase.users[vm.Firebase.user_id].email }}</div>
+      </div>
+      <nav class="mdl-navigation">
+        <a ng-show="vm.is_mobile && vm.Firebase.users[vm.Firebase.user_id].admin" class="mdl-navigation__link" href="" ng-click="vm.mobileShow('UsersGroups')"><i class="material-icons">group</i> Manage users / groups</a>
+        <a ng-show="vm.is_mobile" class="mdl-navigation__link" href="" ng-click="vm.mobileShow('ChatMessages')"><i class="material-icons">question_answer</i> Show chat messages</a>
+        <a ng-show="vm.is_mobile" class="mdl-navigation__link" href="" ng-click="vm.mobileShow('ChatMembers')"><i class="material-icons">people_outline</i> Show chat members</a>
+        
+        <a class="mdl-navigation__link {{ (vm.is_mobile) ? 'separate' : '' }}" href="mailto:nyustrokefriends@gmail.com" target="_blank"><i class="material-icons">feedback</i> Support</a>
+        <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1nUZReWeEBEiqIYleJ_FRw2KBYS6jqjklRN4s1kjhf90/edit?usp=sharing" target="_blank"><i class="material-icons">description</i> Consent Form</a>
+        <a class="mdl-navigation__link" href="https://docs.google.com/document/d/1GZ8EY9_5n7XHx9J733zxnu7XfyW5IiF-S67bNtgziy0/edit?usp=sharing" target="_blank"><i class="material-icons">info</i> About Us</a>
+
+        <a class="mdl-navigation__link separate" href="" ng-click="vm.broadcastMessage()" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin"><i class="material-icons">send</i> Broadcast message</a>
+        
+        <a class="mdl-navigation__link separate" href="" ng-click="vm.Firebase.signOut()"><i class="material-icons">power_settings_new</i> Sign out</a>
+      </nav>
+    </div>
+    
+    
+    <!-- Main panel -->
+    <main class="mdl-layout__content">
+      <div class="mdl-grid mdl-grid--no-spacing">
+      
+        <!-- Admin panel -->
+        <div ng-show="vm.Firebase.users[vm.Firebase.user_id].admin && ((vm.is_mobile && vm.mobile_show === 'UsersGroups') || !vm.is_mobile)" class="admin mdl-cell mdl-cell--2-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone">
+          <div class="head">
+            Manage
+          </div>
+          <div class="list">
+            <div class="search">
+              <form action="" onsubmit="event.preventDefault()">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+                  <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
+                    <i class="material-icons">search</i>
+                  </label>
+                  <div class="mdl-textfield__expandable-holder">
+                    <input class="mdl-textfield__input" type="text" id="search" ng-model="vm.search">
+                    <label class="mdl-textfield__label" for="search-expandable">Expandable Input</label>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+              <div class="mdl-tabs__tab-bar">
+                  <a href="#users-panel" class="mdl-tabs__tab is-active" ng-click="vm.Firebase.redrawMdLite()">Users</a>
+                  <a href="#groups-panel" class="mdl-tabs__tab" ng-click="vm.Firebase.redrawMdLite()">Groups</a>
+              </div>
+              <div class="mdl-tabs__panel is-active users" id="users-panel">
+                <div class="list">
+                  <div ng-repeat="(user_id, u) in vm.Firebase.users | searchByName:vm.search" class="user">
+                    <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(u) }}')"></div>
+                    
+                    <div class="name">
+                      <a href="" ng-click="vm.showProfile(u.user_id)">{{ u.name }}</a>
+                    </div>
+                    
+                    <button ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" id="menu-users-{{ $index }}" class="menu-more mdl-button mdl-js-button mdl-button--icon">
+                      <i class="material-icons">more_vert</i>
+                    </button>
+
+                    <ul ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-users-{{ $index }}">
+                      <li class="mdl-menu__item" ng-click="vm.addUserToCurrentGroup(u.user_id)">Add to current group</li>
+                      <li class="mdl-menu__item" ng-click="vm.removeUser(u.user_id)">Remove from the app</li>
+                    </ul>
+                  </div>                  
+                  <div class="dummy">
+                  </div>
+                  <button class="add mdl-button mdl-js-button mdl-button--fab mdl-button--colored" ng-click="vm.addUser()">
+                    <i class="material-icons">add</i>
+                  </button>
+                </div>
+              </div>
+              <div class="mdl-tabs__panel groups" id="groups-panel">
+                <div class="list">
+                  <div ng-repeat="g in vm.Firebase.groups_array | orderBy:'name' | searchByName:vm.search" class="group">
+                    <div class="name">
+                      <a href="" ng-click="vm.selectGroup(g.group_id)">{{ g.name }}</a>
+                      <span>{{ g.members_count }}/{{ vm.Firebase.max_members_per_group }}</span>
+                    </div>
+                    <div class="members">
+                      <div class="member" ng-repeat="user_id in g.members">
+                        <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}')"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dummy">
+                  </div>
+                  <button class="add mdl-button mdl-js-button mdl-button--fab mdl-button--colored" ng-click="vm.addGroup()">
+                    <i class="material-icons">add</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+         <!-- Messages panel -->
+        <div ng-show="(vm.is_mobile && vm.mobile_show === 'ChatMessages') || !vm.is_mobile" class="messages mdl-cell mdl-cell--{{ (!vm.Firebase.users[vm.Firebase.user_id].admin) ? '10' : '8' }}-col-desktop mdl-cell--12-col-phone mdl-cell--12-col-tablet">
+          <div class="head {{ (vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : 'is_regular' }} tools">
+            <div class="name">
+              {{ vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].name }}
+            </div>
+            
+            <div class="operations" ng-show="vm.Firebase.users[vm.Firebase.user_id].admin">
+                <button ng-click="vm.downloadLog()" class="mdl-button mdl-js-button mdl-button--icon">
+                  <i class="material-icons">file_download</i>
+                </button>
+                
+                <button ng-click="vm.deleteGroup()" class="mdl-button mdl-js-button mdl-button--icon">
+                  <i class="material-icons">delete</i>
+                </button>
+                
+                <button id="menu-group" class="mdl-button mdl-js-button mdl-button--icon menu-group">
+                  <i class="material-icons">more_vert</i>
+                </button>
+                
+                <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-group">
+                  <li class="mdl-menu__item" ng-click="vm.Firebase.removeAllUsersFromGroup()">Remove all users from group</li>
+                  <li class="mdl-menu__item" ng-click="vm.renameGroup()">Rename group</li>
+                </ul>
+            </div>
+          </div>
+          <div class="list" id="messages_list">
+            <div ng-repeat="m in vm.Firebase.messages[vm.Firebase.users[vm.Firebase.user_id].group_id]" class="message b-{{ $index % 4 }}" id="m_{{ m.when }}">
+              <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[m.user_id]) }}')"></div>
+              <div class="name c-{{ vm.Firebase.users[m.user_id].color }}">
+                <a href="" ng-click="vm.showProfile(m.user_id)">{{ vm.Firebase.users[m.user_id].name }}</a>
+              </div>
+              <div class="when">
+                {{ m.when | showTime }}
+              </div>
+              <div class="text" ng-bind-html="m.text | addAnchors"></div>
+            </div>
+          </div>
+          <div class="new" ng-show="vm.Firebase.users[vm.Firebase.user_id].group_id">
+            <textarea placeholder="Type here..." ng-model="vm.new_message" ng-keypress="vm.messageKeypressed($event)"></textarea>
+            <button class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.sendMessageNotLosingFocus($event)" ng-disabled="vm.sending_message">
+              <i class="material-icons">send</i>
+            </button>
+          </div>
+        </div>
+        
+         <!-- Members panel -->
+        <div ng-show="(vm.is_mobile && vm.mobile_show === 'ChatMembers') || !vm.is_mobile" class="members mdl-cell mdl-cell--2-col-desktop mdl-cell--12-col-tablet mdl-cell--12-col-phone">
+          <div class="head {{ (vm.is_mobile) ? ((vm.Firebase.users[vm.Firebase.user_id].admin) ? 'is_admin' : 'is_regular') : '' }}">
+            Group Users
+          </div>
+          <div class="list">
+            <div ng-repeat="user_id in vm.Firebase.groups[vm.Firebase.users[vm.Firebase.user_id].group_id].members" class="member b-{{ $index % 4 }}">
+              <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[user_id]) }}')"></div>
+              <div class="name c-{{ vm.Firebase.users[user_id].color }}">
+                <a href="" ng-click="vm.showProfile(user_id)">{{ vm.Firebase.users[user_id].name }}</a>
+              </div>
+              
+              <button ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" id="menu-group-users-{{ $index }}" class="menu-more mdl-button mdl-js-button mdl-button--icon">
+                <i class="material-icons">more_vert</i>
+              </button>
+
+              <ul ng-show="vm.Firebase.users[vm.Firebase.user_id].admin" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="menu-group-users-{{ $index }}">
+                <li class="mdl-menu__item" ng-click="vm.removeUserFromCurrentGroup(user_id)">Remove from group</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Download Log !-->
+    <dialog class="mdl-dialog download-log">
+      <div class="mdl-dialog__content">
+        
+        <p>
+          Select the period to download
+        </p>
+        
+        <table class="calendar-holder">
+          <tr>
+            <td>
+              <div>
+                From
+                <input ng-model='vm.from' type='text' placeholder='From' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true">
+              </div>
+            </td>
+            <td>
+              <div>
+                To
+                <input ng-model='vm.to' type='text' placeholder='To' data-dt-picker data-format='YYYY-MM-DD' data-toggle='dropdown' data-inline="true" >
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button" ng-click="vm.downloadLogFile()">Download</button>
+        <button type="button" class="mdl-button close" ng-click="vm.dontDownloadLog()">Close</button>
+      </div>
+    </dialog>
+    
+    <!-- Broadcast message !-->
+    <dialog class="mdl-dialog broadcast-message">
+      <div class="mdl-dialog__content">
+        <p>
+          Send a message to every group.
+        </p>
+        <form action="" onsubmit="event.preventDefault()">
+          <div class="mdl-textfield mdl-js-textfield">
+            <textarea class="mdl-textfield__input" type="text" rows= "3" id="broadcastmessage" ng-model="vm.new_broadcast_message" ></textarea>
+            <label class="mdl-textfield__label" for="broadcastmessage">Type here...</label>
+          </div>
+        </form>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button" ng-click="vm.sendBroadcastMessage()">Send</button>
+        <button type="button" class="mdl-button close" ng-click="vm.dontBroadcastMessage()">Cancel</button>
+      </div>
+    </dialog>
+    
+    <div class="mdl-layout__obfuscator {{ (vm.my_profile_visible) ? 'is-visible' : '' }}" ng-click="vm.showMyProfile(false)"></div>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+<!-- Authentication -->
+<div ng-controller="AuthenticationController as vm">
+  <div class="{{ ( vm.Firebase.user_id === null ) ? 'authentication' : '' }} mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <main class="mdl-layout__content">
+      <div ng-show="vm.Firebase.user_id === null" class="form">
+        <img class="logo" src="/img/logo_authentication.png">
+        <form action="" onsubmit="event.preventDefault()">
+          <div class="mdl-textfield mdl-js-textfield" ng-show="vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="text" id="full_name" ng-model="vm.full_name">
+            <label class="mdl-textfield__label" for="full_name" ng-if="vm.full_name == ''">Full Name</label>
+          </div>
+          
+          <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_email != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="text" id="email" ng-model="vm.email">
+            <label class="mdl-textfield__label" for="email" ng-if="vm.email == ''">Email</label>
+            <span class="mdl-textfield__error">{{ vm.error_email }}</span>
+            <div class="success" ng-show="vm.success_message != ''">{{ vm.success_message }}</div>
+          </div>
+          
+          <div class="mdl-textfield mdl-js-textfield {{ (vm.error_password != '') ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'signing_in' || vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="password" id="password" ng-model="vm.password">
+            <label class="mdl-textfield__label" for="password" ng-if="vm.password == ''">Password</label>
+            <span class="mdl-textfield__error {{ (vm.error_password != '') ? 'show-error' : '' }}">{{ vm.error_password }}</span>
+          </div>
+          
+          <div class="mdl-textfield mdl-js-textfield {{ ( vm.error_confirm_password != '' ) ? 'is-invalid is-dirty' : '' }}" ng-show="vm.state === 'registering'">
+            <input class="mdl-textfield__input" type="password" id="confirm_password" ng-model="vm.confirm_password">
+            <label class="mdl-textfield__label" for="confirm_password" ng-if="vm.confirm_password == ''">Confirm password</label>
+            <span class="mdl-textfield__error">{{ vm.error_confirm_password }}</span>
+          </div>
+          
+          <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect keepmepsignedin" for="checkbox-sign-in" ng-show="vm.state === 'signing_in'">
+            <input type="checkbox" id="checkbox-sign-in" class="mdl-checkbox__input" checked ng-true-value="1" ng-false-value="0" ng-model="vm.keep_me_signed_in">
+            <span class="mdl-checkbox__label">Keep me signed in</span>
+          </label>
+          
+          <a class="option link" href="" ng-show="vm.state === 'registering'" target="_blank">
+            Read Terms of Use
+          </a>
+          
+          <div class="option have_read" ng-show="vm.state === 'registering'">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_terms_read">
+              <input type="checkbox" class="mdl-checkbox__input" ng-model="vm.terms_read" id="checkbox_terms_read" >
+              <span class="mdl-checkbox__label">I have read Terms of Use</span>
+            </label>
+          </div>
+
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" ng-disabled="( ( vm.in_progress ) || ( vm.state === 'registering' && !vm.terms_read ) )" ng-click="vm.confirm()">
+            {{ ( vm.state === 'signing_in' ) ? ( ( vm.in_progress ) ? 'Signing in' : 'Sign in' ) : '' }}
+            {{ ( vm.state === 'registering' ) ? ( ( vm.in_progress ) ? 'Registering' : 'Register' ) : '' }}
+          </button>
+
+          <a class="option" href="" ng-show="vm.state === 'signing_in'" ng-click="vm.resetPassword()">
+            FORGOT PASSWORD?
+          </a>
+          
+          <a class="option" href="" ng-show="vm.state === 'signing_in'" ng-click="vm.stateChange( 'registering' )">
+            REGISTER
+          </a>
+          
+          <a class="option" href="" ng-show="vm.state === 'registering'" ng-click="vm.stateChange( 'signing_in' )">
+            SIGN IN
+          </a>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>

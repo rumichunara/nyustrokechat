@@ -1,0 +1,125 @@
+.authentication {
+
+  $text-white: rgba(255, 255, 255, 0.99);
+  $text-gray: rgba(255, 255, 255, 0.32);
+
+  background: url('../img/background.png') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
+  .form {
+    transform: translateX(-50%);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-top: 10%;
+
+    .success {
+      color: $white;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+  }
+
+  img.logo {
+    display: block;
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  div.mdl-textfield {
+    display: block;
+    color: $text-white;
+  }
+
+  .mdl-textfield__input {
+    border-bottom: 1px solid $text-gray;
+  }
+
+  .mdl-textfield__label {
+    color: $text-gray;
+  }
+
+  .mdl-textfield__label:after {
+    background-color: #FFFFFF;
+  }
+
+  .mdl-button {
+    width: 100%;
+    margin-top: 40px;
+    height: 48px;
+  }
+
+  .option {
+    display: block;
+    margin: 20px 0;
+    text-align: center;
+
+    .mdl-checkbox__label {
+      color: $text-white;
+      font-size: 14px;
+    }
+  }
+
+  .option.have_read {
+    margin: 10px 0;
+    text-align: left;
+  }
+
+  a.option {
+    color: $text-white;
+    text-decoration: none;
+  }
+
+  a.option.link {
+    text-decoration: none;
+    color: $blue;
+    text-align: left;
+  }
+
+  .mdl-checkbox__box-outline {
+    border: 2px solid rgba(255, 255, 255, 0.54);
+  }
+
+  .mdl-checkbox.is-checked .mdl-checkbox__box-outline {
+    border: 2px solid $blue;
+  }
+
+  .mdl-checkbox.is-checked .mdl-checkbox__tick-outline {
+    background-color: $blue;
+  }
+
+  .mdl-button--raised[disabled][disabled] {
+    background-color: #BDBDBD;
+    color: $text-white;
+    box-shadow: none;
+  }
+
+  .keepmepsignedin {
+    color: $white;
+    margin-top: 20px;
+  }
+
+  .mdl-textfield__error {
+    color: $orange;
+  }
+
+  .mdl-textfield.is-invalid .mdl-textfield__input {
+    border-color: $orange;
+  }
+
+  .mdl-textfield.is-invalid .mdl-textfield__label:after {
+    border-color: $orange;
+    background-color: $orange;
+  }
+
+  .mdl-textfield__error.show-error {
+    visibility: visible;
+  }
+
+  .mdl-textfield.is-dirty .mdl-textfield__label {
+    visibility: visible;
+  }
+}

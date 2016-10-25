@@ -1,0 +1,13 @@
+{
+  "name": "nyu-chay",
+  "description": "NYU Chat",
+  "version": "0.1.0",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "angular-loader": "~1.4.0",
+    "angular-mocks": "~1.4.0"
+  }
+}

@@ -1,0 +1,125 @@
+.my_profile {
+  .presentation {
+    background-color: rgba(123, 31, 162, 0.95);
+    text-align: center;
+    color: $white;
+    padding: 22px 10px;
+    min-height: 200px;
+
+    .background_picture {
+      $blur: 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: -1;
+      -webkit-filter: blur($blur);
+      -moz-filter: blur($blur);
+      -o-filter: blur($blur);
+      -ms-filter: blur($blur);
+      filter: blur($blur);
+    }
+
+    .title {
+      font-size: 12px;
+      font-weight: 600;
+      position: relative;
+
+      .mdl-button {
+        position: absolute;
+        right: 0;
+        top: -2px;
+        height: 22px;
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .profile_picture {
+      position: relative;
+
+      .picture_container {
+        display: block;
+        margin: 20px auto;
+        width: 96px;
+        border-radius: 50%;
+        height: 96px;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+      }
+
+      .edit {
+        margin: auto;
+        position: absolute;
+        top: calc(50% - 7px);
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        a {
+          text-decoration: none;
+          color: $white;
+        }
+      }
+
+      form {
+        display: none;
+      }
+    }
+
+    div.name {
+      font-weight: 600;
+    }
+
+    input.name {
+      padding: 5px;
+      width: calc(100% - 10px);
+      text-align: center;
+    }
+
+    .email {
+      font-size: 13px;
+      margin-top: 3px;
+    }
+  }
+}
+
+
+.profile {
+  text-align: center;
+
+  .image {
+    display: block;
+    margin: 20px auto;
+    width: 96px;
+    border-radius: 50%;
+    height: 96px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .joined {
+    font-weight: 600;
+
+    span {
+      font-weight: 300;
+    }
+  }
+
+  .last {
+    font-weight: 600;
+
+    span {
+      font-weight: 300;
+    }
+  }
+}
