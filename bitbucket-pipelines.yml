@@ -1,0 +1,9 @@
+image: azukiapp/php-fpm
+
+pipelines:
+  default:
+    - step:
+        script:
+          - npm install
+          - npm --version
+          - npm run ci
