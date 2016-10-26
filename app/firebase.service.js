@@ -624,7 +624,10 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       // We are removing all the users from the current group
       var groupId = instance.users[instance.user_id].group_id;
       angular.forEach( instance.groups[groupId].members, function forEach ( userId ) {
-        firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+        // If he is the admin then he still be working on this group
+        if ( userId !== instance.user_id ) {
+          firebase.database().ref( `/users/${userId}` ).update({ group_id: null });
+        }
       });
       firebase.database().ref( `/groups/${groupId}/members` ).set([]);
     },
