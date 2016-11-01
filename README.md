@@ -12,6 +12,7 @@ NYU Chat App
 - [Commands](#commands)
   - [start](#start)
   - [Build Commands](#build-commands)
+- [Manage administrator users](#manage-administrator-users)
 
 ## Requirements
 
@@ -122,3 +123,18 @@ npm run watch
 ```
 
 Watches for changes on all file types and runs their dev task when detected [js, styles and template].
+
+
+## Manage administrator users 
+
+For ading an admin user, the Firebase interface needs to be used.
+
+1. Log in to firebase with a Google user owner of the project.
+2. Go to the NYU chat application console.
+3. Go to the Auth section, Users tab, and click on Add user (set email and password).
+4. Copy to the clipboard the User ID generated seen on the users list.
+5. Go to the database section, data tab. Inside the "users" object of the data, add an entry with its index equal to the user ID with the following properties/values: "admin: true", "name: (THE USERS NAME)", "user_id: (THE USER ID GIVEN)".
+
+That should be it, now it should be able to log in as an administrator.
+
+For removing an admin user or any other user they should get its ID from the users list on the Auth section, delete it from the users object from the data and then remove it using the delete function in the Auth section, users tab.
