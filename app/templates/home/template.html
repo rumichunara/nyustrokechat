@@ -145,8 +145,11 @@
                   <li class="mdl-menu__item" ng-click="vm.renameGroup()">Rename group</li>
                 </ul>
             </div>
-          </div>
+          </div>       
           <div class="list" id="messages_list">
+            <div class="no-group" ng-show="vm.Firebase.users[vm.Firebase.user_id].group_id == null">
+              No Groups Available
+            </div>             
             <div ng-repeat="m in vm.Firebase.messages[vm.Firebase.users[vm.Firebase.user_id].group_id]" class="message b-{{ $index % 4 }}" id="m_{{ m.when }}">
               <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(vm.Firebase.users[m.user_id]) }}')"></div>
               <div class="name c-{{ vm.Firebase.users[m.user_id].color }}">
