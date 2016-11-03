@@ -182,6 +182,12 @@
       background-color: #F5F5F5;
       margin-top: $new-height;
 
+      .no-group {
+        padding: 16px 0 16px 24px;
+        color: $dark-gray;
+        line-height: 1.43;        
+      }
+
       .message {
         padding: 16px 0 16px 24px;
         min-height: 40px;
