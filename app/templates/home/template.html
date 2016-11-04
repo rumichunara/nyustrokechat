@@ -73,7 +73,7 @@
               </div>
               <div class="mdl-tabs__panel is-active users" id="users-panel">
                 <div class="list">
-                  <div ng-repeat="(user_id, u) in vm.Firebase.users | searchByName:vm.search" class="user">
+                  <div ng-repeat="(user_id, u) in vm.Firebase.users | searchByName:vm.search" class="user" ng-hide="u.admin">
                     <div class="profilepicture" style="background-image: url('{{ vm.getProfilePicture(u) }}')"></div>
                     
                     <div class="name">
