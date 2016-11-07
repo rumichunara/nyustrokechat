@@ -461,6 +461,7 @@ function FirebaseService( $rootScope, $state, $timeout, $window ) {
       var possible = $window.btoa( instance.users[userId].email );
       firebase.database().ref( `/invited/${possible}` ).remove();
       firebase.database().ref( `/users/${userId}` ).remove();
+      firebase.auth().currentUser.delete();
       delete instance.users[userId];
       // We wont remove the messages, we still want them
     },
